@@ -70,4 +70,18 @@ export type {
   KnowledgeBaseProps,
   RequestsProps,
   CensusProviderProps,
+  // Guide types
+  Guide,
+  GuideStep,
+  SelectorStrategy,
+  TooltipPosition,
+  WaitForType,
+  GuideAction,
+  GuideTriggerType,
+  TriggerConfig,
+  GuideTheme,
+  GuidesResponse,
+  GuideEventType,
+  GuideAnalyticsEvent,
+  TooltipOptions,
 } from './types';

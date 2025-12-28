@@ -9,6 +9,9 @@ import type {
   RequestsResponse,
   BatchEventsOptions,
   CensusError,
+  Guide,
+  GuidesResponse,
+  GuideAnalyticsEvent,
 } from './types';
 
 /**
@@ -332,6 +335,131 @@ export class CensusClient {
     await this.request('/api/sdk/events', 'POST', { events });
 
     this.log('Batch events tracked:', options.events.length);
+  }
+
+  /**
+   * Fetch available guides for the current user.
+   * Returns guides that match the user's context and haven't been completed.
+   *
+   * @returns Guides and list of completed guide IDs
+   *
+   * @example
+   * ```typescript
+   * const { guides, completedGuides } = await census.getGuides();
+   * guides.forEach(guide => console.log(guide.name));
+   * ```
+   */
+  async getGuides(): Promise<GuidesResponse> {
+    const params = new URLSearchParams();
+    if (this.currentUserId) {
+      params.set('userId', this.currentUserId);
+    }
+
+    const queryString = params.toString();
+    const url = `/api/sdk/guides${queryString ? `?${queryString}` : ''}`;
+
+    const response = await this.request<GuidesResponse>(url, 'GET');
+    this.log('Fetched guides:', response.guides.length);
+    return response;
+  }
+
+  /**
+   * Fetch a single guide by slug or ID.
+   *
+   * @param slugOrId - Guide slug or ID
+   * @returns Guide or null if not found
+   *
+   * @example
+   * ```typescript
+   * const guide = await census.getGuide('onboarding-tour');
+   * if (guide) {
+   *   console.log(guide.name, guide.guide_steps.length);
+   * }
+   * ```
+   */
+  async getGuide(slugOrId: string): Promise<Guide | null> {
+    try {
+      const params = new URLSearchParams();
+      if (this.currentUserId) {
+        params.set('userId', this.currentUserId);
+      }
+
+      const queryString = params.toString();
+      const url = `/api/sdk/guides/${encodeURIComponent(slugOrId)}${queryString ? `?${queryString}` : ''}`;
+
+      const response = await this.request<{ guide: Guide }>(url, 'GET');
+      this.log('Fetched guide:', slugOrId);
+      return response.guide;
+    } catch (error) {
+      if ((error as CensusError).status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Track a guide analytics event.
+   * Used to track user progress through guides.
+   *
+   * @param event - Guide analytics event
+   *
+   * @example
+   * ```typescript
+   * await census.trackGuideEvent({
+   *   guideId: 'guide_123',
+   *   eventType: 'step_completed',
+   *   stepId: 'step_456',
+   *   stepIndex: 2,
+   *   sessionId: 'session_789',
+   * });
+   * ```
+   */
+  async trackGuideEvent(event: GuideAnalyticsEvent): Promise<void> {
+    if (!event.guideId || !event.eventType || !event.sessionId) {
+      throw new Error('Census: guideId, eventType, and sessionId are required for trackGuideEvent()');
+    }
+
+    await this.request('/api/sdk/guides/events', 'POST', {
+      guideId: event.guideId,
+      eventType: event.eventType,
+      stepId: event.stepId,
+      stepIndex: event.stepIndex,
+      pageUrl: event.pageUrl || (typeof window !== 'undefined' ? window.location.href : undefined),
+      sessionId: event.sessionId,
+      userId: event.userId || this.currentUserId,
+      metadata: event.metadata,
+    });
+
+    this.log('Guide event tracked:', event.eventType, event.guideId);
+  }
+
+  /**
+   * Mark a guide as completed for the current user.
+   * Prevents the guide from showing again.
+   *
+   * @param guideId - ID of the guide to mark as completed
+   *
+   * @example
+   * ```typescript
+   * await census.markGuideCompleted('guide_123');
+   * ```
+   */
+  async markGuideCompleted(guideId: string): Promise<void> {
+    if (!guideId) {
+      throw new Error('Census: guideId is required for markGuideCompleted()');
+    }
+
+    if (!this.currentUserId) {
+      throw new Error('Census: User must be identified before marking guides complete. Call identify() first.');
+    }
+
+    await this.request('/api/sdk/guides/complete', 'POST', {
+      guideId,
+      userId: this.currentUserId,
+    });
+
+    this.log('Guide marked completed:', guideId);
   }
 
   /**

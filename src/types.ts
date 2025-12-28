@@ -463,3 +463,98 @@ export interface CensusProviderProps {
    */
   children: React.ReactNode;
 }
+
+// ============================================
+// User Guides Types
+// ============================================
+
+export interface GuideStep {
+  id: string;
+  sort_order: number;
+  selector_strategy: SelectorStrategy;
+  title: string | null;
+  content: string | null;
+  tooltip_position: TooltipPosition;
+  actions: GuideAction[];
+  wait_for: WaitForType;
+  wait_config: Record<string, unknown>;
+}
+
+export interface SelectorStrategy {
+  css?: string;
+  xpath?: string;
+  text?: string;
+  testId?: string;
+}
+
+export type TooltipPosition = 'auto' | 'top' | 'bottom' | 'left' | 'right';
+
+export type WaitForType = 'click' | 'next_button' | 'delay' | 'custom';
+
+export interface GuideAction {
+  type: 'click' | 'input' | 'navigate' | 'custom';
+  config: Record<string, unknown>;
+}
+
+export interface Guide {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  trigger_type: GuideTriggerType;
+  trigger_config: TriggerConfig;
+  theme: GuideTheme;
+  allow_skip: boolean;
+  show_progress: boolean;
+  guide_steps: GuideStep[];
+}
+
+export type GuideTriggerType = 'manual' | 'url_match' | 'first_visit' | 'event';
+
+export interface TriggerConfig {
+  url_pattern?: string;
+  event_name?: string;
+  delay_ms?: number;
+}
+
+export interface GuideTheme {
+  primaryColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  borderRadius?: string;
+  fontFamily?: string;
+}
+
+export interface GuidesResponse {
+  guides: Guide[];
+  completedGuides: string[];
+}
+
+export type GuideEventType =
+  | 'started'
+  | 'step_viewed'
+  | 'step_completed'
+  | 'completed'
+  | 'skipped'
+  | 'dismissed';
+
+export interface GuideAnalyticsEvent {
+  guideId: string;
+  eventType: GuideEventType;
+  stepId?: string;
+  stepIndex?: number;
+  pageUrl?: string;
+  sessionId: string;
+  userId?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface TooltipOptions {
+  position?: TooltipPosition;
+  showProgress?: boolean;
+  showSkip?: boolean;
+  onNext?: () => void;
+  onPrev?: () => void;
+  onSkip?: () => void;
+  onClose?: () => void;
+}
