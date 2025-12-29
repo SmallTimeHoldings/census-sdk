@@ -41,12 +41,33 @@
 export { CensusProvider, useCensus, useCensusContext, useIdentify } from './context';
 
 // Hooks
-export { useFeedback, useArticles, useArticle, useRequests, useTrack } from './hooks';
+export {
+  useFeedback,
+  useArticles,
+  useArticle,
+  useRequests,
+  useTrack,
+  useGuides,
+  useGuideBuilder,
+  useGuideRenderer,
+} from './hooks';
 
 // Components
 export { FeedbackButton } from './components/FeedbackButton';
 export { KnowledgeBase } from './components/KnowledgeBase';
 export { Requests } from './components/Requests';
+export { GuideBuilder } from './components/GuideBuilder';
+export {
+  GuideRenderer,
+  TooltipStep,
+  ModalStep,
+  SlideoutStep,
+  HotspotStep,
+  BannerStep,
+  Backdrop,
+  StepButtons,
+  StepContent,
+} from './components/GuideRenderer';
 
 // Re-export types that are commonly used with React
 export type {
@@ -63,4 +84,24 @@ export type {
   RequestsOptions,
   CensusTheme,
   Position,
+  // Guide Builder types
+  Guide,
+  GuideStep,
+  GuideStepType,
+  GuideStatus,
+  GuideTriggerType,
+  TooltipPosition,
+  AdvanceTrigger,
+  GuideFormType,
+  GuideStepRichContent,
+  GuideStepDisplayConfig,
+  GuideStepAdvanceConfig,
+  GuideStepStyleConfig,
+  SelectorStrategy,
+  CreateGuideOptions,
+  UpdateGuideOptions,
+  CreateGuideStepOptions,
+  UpdateGuideStepOptions,
+  GuidesOptions,
+  GuidesResponse,
 } from '../types';

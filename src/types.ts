@@ -266,6 +266,411 @@ export interface CensusError {
   status?: number;
 }
 
+// ============================================================================
+// Guide Builder types
+// ============================================================================
+
+/**
+ * Step types for guides
+ */
+export type GuideStepType = 'tooltip' | 'modal' | 'slideout' | 'hotspot' | 'banner';
+
+/**
+ * Tooltip position options
+ */
+export type TooltipPosition = 'auto' | 'top' | 'bottom' | 'left' | 'right';
+
+/**
+ * Step advancement trigger types
+ */
+export type AdvanceTrigger = 'button' | 'click' | 'delay' | 'form-submit';
+
+/**
+ * Form types for guide steps
+ */
+export type GuideFormType = 'nps' | 'rating' | 'text' | 'select' | 'multi-select';
+
+/**
+ * Rich content for guide steps
+ */
+export interface GuideStepRichContent {
+  title?: string;
+  body?: string;
+  media?: {
+    type: 'image' | 'video';
+    url: string;
+    alt?: string;
+  };
+  buttons?: Array<{
+    label: string;
+    action: 'next' | 'prev' | 'dismiss' | 'url' | 'custom';
+    url?: string;
+    customAction?: string;
+    style?: 'primary' | 'secondary' | 'text';
+  }>;
+  form?: {
+    type: GuideFormType;
+    question: string;
+    options?: string[];
+    required?: boolean;
+    submitLabel?: string;
+  };
+}
+
+/**
+ * Display configuration for guide steps
+ */
+export interface GuideStepDisplayConfig {
+  position?: TooltipPosition | 'center';
+  offset?: { x: number; y: number };
+  width?: number;
+  backdrop?: boolean;
+  spotlightPadding?: number;
+  bannerPosition?: 'top' | 'bottom';
+}
+
+/**
+ * Advancement configuration for guide steps
+ */
+export interface GuideStepAdvanceConfig {
+  trigger: AdvanceTrigger;
+  delay?: number;
+  clickSelector?: string;
+}
+
+/**
+ * Style configuration for guide steps
+ */
+export interface GuideStepStyleConfig {
+  backgroundColor?: string;
+  textColor?: string;
+  accentColor?: string;
+  borderRadius?: number;
+  customCSS?: string;
+}
+
+/**
+ * Selector strategy for targeting elements
+ */
+export interface SelectorStrategy {
+  css?: string;
+  xpath?: string;
+  text?: string;
+  testId?: string;
+}
+
+/**
+ * Guide step definition
+ */
+export interface GuideStep {
+  id: string;
+  guide_id?: string;
+  sort_order: number;
+  step_type: GuideStepType;
+  selector_strategy: SelectorStrategy | null;
+  title: string | null;
+  content: string | null;
+  tooltip_position: TooltipPosition;
+  actions: Array<Record<string, unknown>>;
+  wait_for: 'click' | 'next_button' | 'delay' | 'custom';
+  wait_config: Record<string, unknown>;
+  rich_content: GuideStepRichContent;
+  display_config: GuideStepDisplayConfig;
+  advance_config: GuideStepAdvanceConfig;
+  style_config: GuideStepStyleConfig;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Guide trigger types
+ */
+export type GuideTriggerType = 'manual' | 'url_match' | 'first_visit' | 'event';
+
+/**
+ * Guide status
+ */
+export type GuideStatus = 'draft' | 'published' | 'archived';
+
+/**
+ * Guide definition
+ */
+export interface Guide {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  trigger_type: GuideTriggerType;
+  trigger_config: Record<string, unknown>;
+  theme: Record<string, unknown>;
+  allow_skip: boolean;
+  show_progress: boolean;
+  status?: GuideStatus;
+  published_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  guide_steps: GuideStep[];
+}
+
+/**
+ * Options for creating a guide
+ */
+export interface CreateGuideOptions {
+  /**
+   * Name of the guide
+   */
+  name: string;
+
+  /**
+   * URL-friendly slug (lowercase, hyphens only)
+   */
+  slug: string;
+
+  /**
+   * Description of the guide
+   */
+  description?: string;
+
+  /**
+   * Project ID to associate with
+   */
+  projectId?: string;
+
+  /**
+   * When to trigger the guide
+   * @default "manual"
+   */
+  triggerType?: GuideTriggerType;
+
+  /**
+   * Configuration for the trigger (e.g., url_pattern for url_match)
+   */
+  triggerConfig?: Record<string, unknown>;
+
+  /**
+   * Theme customization
+   */
+  theme?: Record<string, unknown>;
+
+  /**
+   * Allow users to skip the guide
+   * @default true
+   */
+  allowSkip?: boolean;
+
+  /**
+   * Show progress indicator
+   * @default true
+   */
+  showProgress?: boolean;
+}
+
+/**
+ * Options for updating a guide
+ */
+export interface UpdateGuideOptions {
+  name?: string;
+  slug?: string;
+  description?: string;
+  triggerType?: GuideTriggerType;
+  triggerConfig?: Record<string, unknown>;
+  theme?: Record<string, unknown>;
+  allowSkip?: boolean;
+  showProgress?: boolean;
+  status?: GuideStatus;
+}
+
+/**
+ * Options for creating a guide step
+ */
+export interface CreateGuideStepOptions {
+  /**
+   * Type of step
+   * @default "tooltip"
+   */
+  stepType?: GuideStepType;
+
+  /**
+   * Order position (auto-assigned if not provided)
+   */
+  sortOrder?: number;
+
+  /**
+   * Element selector strategy
+   */
+  selectorStrategy?: SelectorStrategy;
+
+  /**
+   * Simple title (legacy, use richContent.title instead)
+   */
+  title?: string;
+
+  /**
+   * Simple content (legacy, use richContent.body instead)
+   */
+  content?: string;
+
+  /**
+   * Tooltip position
+   * @default "auto"
+   */
+  tooltipPosition?: TooltipPosition;
+
+  /**
+   * Rich content configuration
+   */
+  richContent?: GuideStepRichContent;
+
+  /**
+   * Display configuration
+   */
+  displayConfig?: GuideStepDisplayConfig;
+
+  /**
+   * Advancement configuration
+   */
+  advanceConfig?: GuideStepAdvanceConfig;
+
+  /**
+   * Style overrides
+   */
+  styleConfig?: GuideStepStyleConfig;
+}
+
+/**
+ * Options for updating a guide step
+ */
+export interface UpdateGuideStepOptions extends Partial<CreateGuideStepOptions> {
+  // Same as create but all optional
+}
+
+/**
+ * Options for fetching guides
+ */
+export interface GuidesOptions {
+  /**
+   * Filter by project ID
+   */
+  projectId?: string;
+
+  /**
+   * Current page URL (for trigger matching)
+   */
+  url?: string;
+
+  /**
+   * User ID (to get completion status)
+   */
+  userId?: string;
+}
+
+/**
+ * Response from guides list endpoint
+ */
+export interface GuidesResponse {
+  guides: Guide[];
+  completedGuides: string[];
+}
+
+// ============================================================================
+// Server-side sync types
+// ============================================================================
+
+/**
+ * Extended user data for server-side sync (includes subscription/activity fields)
+ */
+export interface SyncUserData extends UserIdentity {
+  /**
+   * User's plan name (e.g., "Pro", "Enterprise")
+   */
+  planName?: string;
+
+  /**
+   * Current subscription status
+   */
+  subscriptionStatus?: 'active' | 'canceled' | 'trial' | 'past_due' | 'paused' | 'free';
+
+  /**
+   * Billing cycle frequency
+   */
+  billingCycle?: 'monthly' | 'yearly' | 'quarterly' | 'lifetime' | 'custom';
+
+  /**
+   * Monthly recurring revenue in cents (e.g., 9900 = $99.00)
+   */
+  mrr?: number;
+
+  /**
+   * When the subscription started
+   */
+  subscriptionStartedAt?: string | Date;
+
+  /**
+   * When the subscription ends (for canceled subscriptions)
+   */
+  subscriptionEndsAt?: string | Date;
+
+  /**
+   * When the trial period ends
+   */
+  trialEndsAt?: string | Date;
+
+  /**
+   * When the user first signed up
+   */
+  signupAt?: string | Date;
+
+  /**
+   * Total number of logins
+   */
+  loginCount?: number;
+
+  /**
+   * Last login timestamp
+   */
+  lastLoginAt?: string | Date;
+}
+
+/**
+ * Options for bulk sync operations
+ */
+export interface SyncUsersOptions {
+  /**
+   * How to handle existing users
+   * - 'update': Update existing users with new data (default)
+   * - 'skip': Skip existing users
+   */
+  onConflict?: 'update' | 'skip';
+
+  /**
+   * Batch size for processing (default: 100, max: 100)
+   */
+  batchSize?: number;
+}
+
+/**
+ * Result from sync operations
+ */
+export interface SyncResult {
+  success: boolean;
+  userId?: string;
+}
+
+/**
+ * Result from bulk sync operation
+ */
+export interface SyncUsersResult {
+  success: boolean;
+  created: number;
+  updated: number;
+  skipped: number;
+  failed: number;
+  errors?: Array<{
+    userId: string;
+    error: string;
+  }>;
+}
+
 /**
  * Position for floating UI elements
  */

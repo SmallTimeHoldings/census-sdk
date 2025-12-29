@@ -10,8 +10,14 @@ import type {
   BatchEventsOptions,
   CensusError,
   Guide,
+  GuideStep,
+  GuidesOptions,
   GuidesResponse,
   GuideAnalyticsEvent,
+  CreateGuideOptions,
+  UpdateGuideOptions,
+  CreateGuideStepOptions,
+  UpdateGuideStepOptions,
 } from './types';
 
 /**
@@ -335,6 +341,349 @@ export class CensusClient {
     await this.request('/api/sdk/events', 'POST', { events });
 
     this.log('Batch events tracked:', options.events.length);
+  }
+
+  // ============================================================================
+  // Guide Builder Methods
+  // ============================================================================
+
+  /**
+   * Get published guides.
+   *
+   * @param options - Query options
+   * @returns Guides and completion status
+   *
+   * @example
+   * ```typescript
+   * const { guides, completedGuides } = await census.getGuides({
+   *   url: window.location.href,
+   *   userId: 'user_123',
+   * });
+   * ```
+   */
+  async getGuides(options?: GuidesOptions): Promise<GuidesResponse> {
+    const params = new URLSearchParams();
+    if (options?.projectId) params.set('project_id', options.projectId);
+    if (options?.url) params.set('url', options.url);
+    if (options?.userId) params.set('user_id', options.userId);
+
+    const queryString = params.toString();
+    const url = `/api/sdk/guides${queryString ? `?${queryString}` : ''}`;
+
+    const response = await this.request<GuidesResponse>(url, 'GET');
+    this.log('Fetched guides:', response.guides.length);
+    return response;
+  }
+
+  /**
+   * Get a single guide by ID.
+   *
+   * @param guideId - Guide ID
+   * @returns Guide with steps or null if not found
+   *
+   * @example
+   * ```typescript
+   * const guide = await census.getGuide('guide_123');
+   * if (guide) {
+   *   console.log(guide.name, guide.guide_steps.length);
+   * }
+   * ```
+   */
+  async getGuide(guideId: string): Promise<Guide | null> {
+    try {
+      const response = await this.request<{ guide: Guide }>(
+        `/api/sdk/guides/${encodeURIComponent(guideId)}`,
+        'GET'
+      );
+      this.log('Fetched guide:', guideId);
+      return response.guide;
+    } catch (error) {
+      if ((error as CensusError).status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Create a new guide.
+   * Requires guides:create or guides:admin scope.
+   *
+   * @param options - Guide creation options
+   * @returns Created guide
+   *
+   * @example
+   * ```typescript
+   * const guide = await census.createGuide({
+   *   name: 'Welcome Tour',
+   *   slug: 'welcome-tour',
+   *   description: 'Introduction to the app',
+   *   triggerType: 'first_visit',
+   * });
+   * ```
+   */
+  async createGuide(options: CreateGuideOptions): Promise<Guide> {
+    if (!options.name || !options.slug) {
+      throw new Error('Census: name and slug are required for createGuide()');
+    }
+
+    const response = await this.request<{ guide: Guide }>(
+      '/api/sdk/guides',
+      'POST',
+      {
+        name: options.name,
+        slug: options.slug,
+        description: options.description,
+        project_id: options.projectId,
+        trigger_type: options.triggerType || 'manual',
+        trigger_config: options.triggerConfig || {},
+        theme: options.theme || {},
+        allow_skip: options.allowSkip ?? true,
+        show_progress: options.showProgress ?? true,
+      }
+    );
+
+    this.log('Guide created:', response.guide.id);
+    return response.guide;
+  }
+
+  /**
+   * Update an existing guide.
+   * Requires guides:create or guides:admin scope.
+   *
+   * @param guideId - Guide ID to update
+   * @param options - Update options
+   * @returns Updated guide
+   *
+   * @example
+   * ```typescript
+   * const guide = await census.updateGuide('guide_123', {
+   *   name: 'Updated Tour Name',
+   *   status: 'published',
+   * });
+   * ```
+   */
+  async updateGuide(guideId: string, options: UpdateGuideOptions): Promise<Guide> {
+    if (!guideId) {
+      throw new Error('Census: guideId is required for updateGuide()');
+    }
+
+    const body: Record<string, unknown> = {};
+    if (options.name !== undefined) body.name = options.name;
+    if (options.slug !== undefined) body.slug = options.slug;
+    if (options.description !== undefined) body.description = options.description;
+    if (options.triggerType !== undefined) body.trigger_type = options.triggerType;
+    if (options.triggerConfig !== undefined) body.trigger_config = options.triggerConfig;
+    if (options.theme !== undefined) body.theme = options.theme;
+    if (options.allowSkip !== undefined) body.allow_skip = options.allowSkip;
+    if (options.showProgress !== undefined) body.show_progress = options.showProgress;
+    if (options.status !== undefined) body.status = options.status;
+
+    const response = await this.request<{ guide: Guide }>(
+      `/api/sdk/guides/${encodeURIComponent(guideId)}`,
+      'PUT',
+      body
+    );
+
+    this.log('Guide updated:', guideId);
+    return response.guide;
+  }
+
+  /**
+   * Delete a guide.
+   * Requires guides:admin scope.
+   *
+   * @param guideId - Guide ID to delete
+   *
+   * @example
+   * ```typescript
+   * await census.deleteGuide('guide_123');
+   * ```
+   */
+  async deleteGuide(guideId: string): Promise<void> {
+    if (!guideId) {
+      throw new Error('Census: guideId is required for deleteGuide()');
+    }
+
+    await this.request(
+      `/api/sdk/guides/${encodeURIComponent(guideId)}`,
+      'DELETE'
+    );
+
+    this.log('Guide deleted:', guideId);
+  }
+
+  /**
+   * Get steps for a guide.
+   *
+   * @param guideId - Guide ID
+   * @returns Array of steps
+   *
+   * @example
+   * ```typescript
+   * const steps = await census.getGuideSteps('guide_123');
+   * ```
+   */
+  async getGuideSteps(guideId: string): Promise<GuideStep[]> {
+    const response = await this.request<{ steps: GuideStep[] }>(
+      `/api/sdk/guides/${encodeURIComponent(guideId)}/steps`,
+      'GET'
+    );
+    this.log('Fetched steps for guide:', guideId);
+    return response.steps;
+  }
+
+  /**
+   * Add a step to a guide.
+   * Requires guides:create or guides:admin scope.
+   *
+   * @param guideId - Guide ID
+   * @param options - Step creation options
+   * @returns Created step
+   *
+   * @example
+   * ```typescript
+   * const step = await census.addGuideStep('guide_123', {
+   *   stepType: 'tooltip',
+   *   selectorStrategy: { css: '.welcome-button' },
+   *   richContent: {
+   *     title: 'Welcome!',
+   *     body: 'Click here to get started',
+   *   },
+   * });
+   * ```
+   */
+  async addGuideStep(guideId: string, options: CreateGuideStepOptions): Promise<GuideStep> {
+    if (!guideId) {
+      throw new Error('Census: guideId is required for addGuideStep()');
+    }
+
+    const response = await this.request<{ step: GuideStep }>(
+      `/api/sdk/guides/${encodeURIComponent(guideId)}/steps`,
+      'POST',
+      {
+        step_type: options.stepType || 'tooltip',
+        sort_order: options.sortOrder,
+        selector_strategy: options.selectorStrategy || {},
+        title: options.title,
+        content: options.content,
+        tooltip_position: options.tooltipPosition || 'auto',
+        rich_content: options.richContent || {},
+        display_config: options.displayConfig || {},
+        advance_config: options.advanceConfig || { trigger: 'button' },
+        style_config: options.styleConfig || {},
+      }
+    );
+
+    this.log('Step added to guide:', guideId);
+    return response.step;
+  }
+
+  /**
+   * Update a guide step.
+   * Requires guides:create or guides:admin scope.
+   *
+   * @param guideId - Guide ID
+   * @param stepId - Step ID
+   * @param options - Update options
+   * @returns Updated step
+   *
+   * @example
+   * ```typescript
+   * const step = await census.updateGuideStep('guide_123', 'step_456', {
+   *   richContent: { title: 'Updated title' },
+   * });
+   * ```
+   */
+  async updateGuideStep(
+    guideId: string,
+    stepId: string,
+    options: UpdateGuideStepOptions
+  ): Promise<GuideStep> {
+    if (!guideId || !stepId) {
+      throw new Error('Census: guideId and stepId are required for updateGuideStep()');
+    }
+
+    const body: Record<string, unknown> = {};
+    if (options.stepType !== undefined) body.step_type = options.stepType;
+    if (options.sortOrder !== undefined) body.sort_order = options.sortOrder;
+    if (options.selectorStrategy !== undefined) body.selector_strategy = options.selectorStrategy;
+    if (options.title !== undefined) body.title = options.title;
+    if (options.content !== undefined) body.content = options.content;
+    if (options.tooltipPosition !== undefined) body.tooltip_position = options.tooltipPosition;
+    if (options.richContent !== undefined) body.rich_content = options.richContent;
+    if (options.displayConfig !== undefined) body.display_config = options.displayConfig;
+    if (options.advanceConfig !== undefined) body.advance_config = options.advanceConfig;
+    if (options.styleConfig !== undefined) body.style_config = options.styleConfig;
+
+    const response = await this.request<{ step: GuideStep }>(
+      `/api/sdk/guides/${encodeURIComponent(guideId)}/steps/${encodeURIComponent(stepId)}`,
+      'PUT',
+      body
+    );
+
+    this.log('Step updated:', stepId);
+    return response.step;
+  }
+
+  /**
+   * Delete a guide step.
+   * Requires guides:create or guides:admin scope.
+   *
+   * @param guideId - Guide ID
+   * @param stepId - Step ID
+   *
+   * @example
+   * ```typescript
+   * await census.deleteGuideStep('guide_123', 'step_456');
+   * ```
+   */
+  async deleteGuideStep(guideId: string, stepId: string): Promise<void> {
+    if (!guideId || !stepId) {
+      throw new Error('Census: guideId and stepId are required for deleteGuideStep()');
+    }
+
+    await this.request(
+      `/api/sdk/guides/${encodeURIComponent(guideId)}/steps/${encodeURIComponent(stepId)}`,
+      'DELETE'
+    );
+
+    this.log('Step deleted:', stepId);
+  }
+
+  /**
+   * Reorder steps in a guide.
+   * Requires guides:create or guides:admin scope.
+   *
+   * @param guideId - Guide ID
+   * @param stepOrder - Array of { id, sort_order } to define new order
+   * @returns Updated steps
+   *
+   * @example
+   * ```typescript
+   * const steps = await census.reorderGuideSteps('guide_123', [
+   *   { id: 'step_a', sort_order: 0 },
+   *   { id: 'step_b', sort_order: 1 },
+   *   { id: 'step_c', sort_order: 2 },
+   * ]);
+   * ```
+   */
+  async reorderGuideSteps(
+    guideId: string,
+    stepOrder: Array<{ id: string; sort_order: number }>
+  ): Promise<GuideStep[]> {
+    if (!guideId) {
+      throw new Error('Census: guideId is required for reorderGuideSteps()');
+    }
+
+    const response = await this.request<{ steps: GuideStep[] }>(
+      `/api/sdk/guides/${encodeURIComponent(guideId)}/steps`,
+      'PUT',
+      { steps: stepOrder }
+    );
+
+    this.log('Steps reordered for guide:', guideId);
+    return response.steps;
   }
 
   /**

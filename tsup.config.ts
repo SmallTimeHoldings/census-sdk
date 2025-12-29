@@ -30,4 +30,15 @@ export default defineConfig([
       };
     },
   },
+  // Server entry (Node.js/Edge)
+  {
+    entry: ['src/server.ts'],
+    outDir: 'dist/server',
+    format: ['cjs', 'esm'],
+    dts: true,
+    splitting: false,
+    sourcemap: true,
+    treeshake: true,
+    minify: true,
+  },
 ]);
