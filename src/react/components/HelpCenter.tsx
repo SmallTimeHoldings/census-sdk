@@ -339,8 +339,6 @@ function FeatureGroupCard({
   group: FeatureGroup;
   onClick: () => void;
 }) {
-  const bgColor = group.color || '#f3f4f6';
-
   return (
     <div
       style={defaultStyles.groupCard}
@@ -351,22 +349,12 @@ function FeatureGroupCard({
         if (e.key === 'Enter' || e.key === ' ') onClick();
       }}
     >
-      <div style={defaultStyles.groupCardHeader}>
-        <div
-          style={{
-            ...defaultStyles.groupCardIcon,
-            backgroundColor: bgColor,
-          }}
-        >
-          {group.icon || '📦'}
-        </div>
-        <div>
-          <h3 style={defaultStyles.groupCardName}>{group.name}</h3>
-          <p style={defaultStyles.groupCardMeta}>
-            {group.feature_count} feature{group.feature_count !== 1 ? 's' : ''} · {group.article_count} article
-            {group.article_count !== 1 ? 's' : ''}
-          </p>
-        </div>
+      <div>
+        <h3 style={defaultStyles.groupCardName}>{group.name}</h3>
+        <p style={defaultStyles.groupCardMeta}>
+          {group.feature_count} feature{group.feature_count !== 1 ? 's' : ''} · {group.article_count} article
+          {group.article_count !== 1 ? 's' : ''}
+        </p>
       </div>
       {group.description && (
         <p style={{ ...defaultStyles.articleDescription, marginTop: '8px' }}>{group.description}</p>
@@ -818,7 +806,6 @@ export function HelpCenter({
                     }}
                     onClick={() => handleGroupClick(group)}
                   >
-                    <span>{group.icon || '📦'}</span>
                     <span style={{ flex: 1 }}>{group.name}</span>
                     <span style={defaultStyles.sidebarBadge}>{group.feature_count}</span>
                   </button>
