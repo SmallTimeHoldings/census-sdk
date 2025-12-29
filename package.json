@@ -1,6 +1,6 @@
 {
   "name": "@census-ai/census-sdk",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Official Census SDK for integrating feedback, knowledge base, and analytics into your application",
   "author": "Census AI",
   "license": "MIT",

@@ -5,6 +5,7 @@ import type {
   ArticlesOptions,
   ArticlesResponse,
   Article,
+  FeatureGroupsResponse,
   RequestsOptions,
   RequestsResponse,
   Guide,
@@ -210,6 +211,70 @@ export function useArticle(slugOrId: string) {
     isLoading,
     error,
     refetch: fetchArticle,
+  };
+}
+
+/**
+ * Hook for fetching feature groups with their features.
+ * Used by the HelpCenter component for navigation.
+ *
+ * @returns Object with feature groups data and loading state
+ *
+ * @example
+ * ```tsx
+ * function FeatureNav() {
+ *   const { featureGroups, isLoading } = useFeatureGroups();
+ *
+ *   if (isLoading) return <p>Loading...</p>;
+ *
+ *   return (
+ *     <nav>
+ *       {featureGroups.map(group => (
+ *         <div key={group.id}>
+ *           <h3>{group.name}</h3>
+ *           <ul>
+ *             {group.features.map(feature => (
+ *               <li key={feature.id}>{feature.name}</li>
+ *             ))}
+ *           </ul>
+ *         </div>
+ *       ))}
+ *     </nav>
+ *   );
+ * }
+ * ```
+ */
+export function useFeatureGroups() {
+  const { client, isReady } = useCensusContext();
+  const [featureGroups, setFeatureGroups] = useState<FeatureGroupsResponse['feature_groups']>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchFeatureGroups = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await client.getFeatureGroups();
+      setFeatureGroups(result.feature_groups);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch feature groups'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [client]);
+
+  useEffect(() => {
+    if (isReady) {
+      fetchFeatureGroups();
+    }
+  }, [isReady, fetchFeatureGroups]);
+
+  return {
+    featureGroups,
+    isLoading,
+    error,
+    refetch: fetchFeatureGroups,
   };
 }
 

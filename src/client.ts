@@ -5,6 +5,7 @@ import type {
   ArticlesOptions,
   ArticlesResponse,
   Article,
+  FeatureGroupsResponse,
   RequestsOptions,
   RequestsResponse,
   BatchEventsOptions,
@@ -235,6 +236,29 @@ export class CensusClient {
       }
       throw error;
     }
+  }
+
+  /**
+   * Fetch feature groups with their features.
+   * Used by the HelpCenter component for navigation.
+   *
+   * @returns Feature groups with features and article counts
+   *
+   * @example
+   * ```typescript
+   * const { feature_groups } = await census.getFeatureGroups();
+   * feature_groups.forEach(group => {
+   *   console.log(group.name, group.features.length);
+   * });
+   * ```
+   */
+  async getFeatureGroups(): Promise<FeatureGroupsResponse> {
+    const response = await this.request<FeatureGroupsResponse>(
+      '/api/sdk/feature-groups',
+      'GET'
+    );
+    this.log('Fetched feature groups:', response.feature_groups.length);
+    return response;
   }
 
   /**
@@ -684,67 +708,6 @@ export class CensusClient {
 
     this.log('Steps reordered for guide:', guideId);
     return response.steps;
-  }
-
-  /**
-   * Fetch available guides for the current user.
-   * Returns guides that match the user's context and haven't been completed.
-   *
-   * @returns Guides and list of completed guide IDs
-   *
-   * @example
-   * ```typescript
-   * const { guides, completedGuides } = await census.getGuides();
-   * guides.forEach(guide => console.log(guide.name));
-   * ```
-   */
-  async getGuides(): Promise<GuidesResponse> {
-    const params = new URLSearchParams();
-    if (this.currentUserId) {
-      params.set('userId', this.currentUserId);
-    }
-
-    const queryString = params.toString();
-    const url = `/api/sdk/guides${queryString ? `?${queryString}` : ''}`;
-
-    const response = await this.request<GuidesResponse>(url, 'GET');
-    this.log('Fetched guides:', response.guides.length);
-    return response;
-  }
-
-  /**
-   * Fetch a single guide by slug or ID.
-   *
-   * @param slugOrId - Guide slug or ID
-   * @returns Guide or null if not found
-   *
-   * @example
-   * ```typescript
-   * const guide = await census.getGuide('onboarding-tour');
-   * if (guide) {
-   *   console.log(guide.name, guide.guide_steps.length);
-   * }
-   * ```
-   */
-  async getGuide(slugOrId: string): Promise<Guide | null> {
-    try {
-      const params = new URLSearchParams();
-      if (this.currentUserId) {
-        params.set('userId', this.currentUserId);
-      }
-
-      const queryString = params.toString();
-      const url = `/api/sdk/guides/${encodeURIComponent(slugOrId)}${queryString ? `?${queryString}` : ''}`;
-
-      const response = await this.request<{ guide: Guide }>(url, 'GET');
-      this.log('Fetched guide:', slugOrId);
-      return response.guide;
-    } catch (error) {
-      if ((error as CensusError).status === 404) {
-        return null;
-      }
-      throw error;
-    }
   }
 
   /**

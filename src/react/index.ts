@@ -45,6 +45,7 @@ export {
   useFeedback,
   useArticles,
   useArticle,
+  useFeatureGroups,
   useRequests,
   useTrack,
   useGuides,
@@ -56,6 +57,7 @@ export {
 export { FeedbackButton } from './components/FeedbackButton';
 export { KnowledgeBase } from './components/KnowledgeBase';
 export { Requests } from './components/Requests';
+export { HelpCenter } from './components/HelpCenter';
 export { GuideBuilder } from './components/GuideBuilder';
 export {
   GuideRenderer,
@@ -75,11 +77,16 @@ export type {
   FeedbackButtonProps,
   KnowledgeBaseProps,
   RequestsProps,
+  HelpCenterProps,
+  HelpCenterTab,
   UserIdentity,
   FeedbackType,
   FeedbackOptions,
   Article,
   ArticlesOptions,
+  Feature,
+  FeatureGroup,
+  FeatureGroupsResponse,
   Request,
   RequestsOptions,
   CensusTheme,

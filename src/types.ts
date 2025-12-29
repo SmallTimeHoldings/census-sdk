@@ -122,13 +122,50 @@ export interface Article {
   read_time_minutes: number | null;
   published_at: string | null;
   sort_order: number;
-  content?: unknown;
+  content?: string;
   content_html?: string;
   features?: {
     id: string;
     name: string;
     slug: string;
   };
+}
+
+// ============================================================================
+// Feature Groups types (for HelpCenter navigation)
+// ============================================================================
+
+/**
+ * A feature within a feature group
+ */
+export interface Feature {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  status: string;
+  article_count: number;
+}
+
+/**
+ * A feature group containing features
+ */
+export interface FeatureGroup {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  color: string | null;
+  features: Feature[];
+  feature_count: number;
+  article_count: number;
+}
+
+/**
+ * Response from feature groups endpoint
+ */
+export interface FeatureGroupsResponse {
+  feature_groups: FeatureGroup[];
 }
 
 /**
@@ -835,6 +872,81 @@ export interface RequestsProps {
 }
 
 /**
+ * Available tabs in the HelpCenter component
+ */
+export type HelpCenterTab = 'articles' | 'requests';
+
+/**
+ * Props for the HelpCenter component
+ */
+export interface HelpCenterProps {
+  /**
+   * Which tabs to show. Order determines tab order.
+   * @default ['articles', 'requests']
+   *
+   * @example
+   * // Show both tabs
+   * tabs={['articles', 'requests']}
+   *
+   * // Articles only (e.g., documentation page)
+   * tabs={['articles']}
+   *
+   * // Requests only (e.g., feedback page)
+   * tabs={['requests']}
+   */
+  tabs?: HelpCenterTab[];
+
+  /**
+   * Default tab to show on load
+   * @default First tab in the tabs array
+   */
+  defaultTab?: HelpCenterTab;
+
+  /**
+   * Custom labels for tabs
+   * @default { articles: 'Articles', requests: 'My Requests' }
+   */
+  tabLabels?: Partial<Record<HelpCenterTab, string>>;
+
+  /**
+   * Show search bar in articles tab
+   * @default true
+   */
+  showSearch?: boolean;
+
+  /**
+   * Show category filters in articles tab
+   * @default true
+   */
+  showCategories?: boolean;
+
+  /**
+   * Theme customization
+   */
+  theme?: CensusTheme;
+
+  /**
+   * Custom CSS class
+   */
+  className?: string;
+
+  /**
+   * Callback when an article is viewed
+   */
+  onArticleView?: (article: Article) => void;
+
+  /**
+   * Callback when a request is clicked
+   */
+  onRequestClick?: (request: Request) => void;
+
+  /**
+   * Callback when the active tab changes
+   */
+  onTabChange?: (tab: HelpCenterTab) => void;
+}
+
+/**
  * Props for the CensusProvider component
  */
 export interface CensusProviderProps {
@@ -870,70 +982,8 @@ export interface CensusProviderProps {
 }
 
 // ============================================
-// User Guides Types
+// Guide Analytics Types (for tracking)
 // ============================================
-
-export interface GuideStep {
-  id: string;
-  sort_order: number;
-  selector_strategy: SelectorStrategy;
-  title: string | null;
-  content: string | null;
-  tooltip_position: TooltipPosition;
-  actions: GuideAction[];
-  wait_for: WaitForType;
-  wait_config: Record<string, unknown>;
-}
-
-export interface SelectorStrategy {
-  css?: string;
-  xpath?: string;
-  text?: string;
-  testId?: string;
-}
-
-export type TooltipPosition = 'auto' | 'top' | 'bottom' | 'left' | 'right';
-
-export type WaitForType = 'click' | 'next_button' | 'delay' | 'custom';
-
-export interface GuideAction {
-  type: 'click' | 'input' | 'navigate' | 'custom';
-  config: Record<string, unknown>;
-}
-
-export interface Guide {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  trigger_type: GuideTriggerType;
-  trigger_config: TriggerConfig;
-  theme: GuideTheme;
-  allow_skip: boolean;
-  show_progress: boolean;
-  guide_steps: GuideStep[];
-}
-
-export type GuideTriggerType = 'manual' | 'url_match' | 'first_visit' | 'event';
-
-export interface TriggerConfig {
-  url_pattern?: string;
-  event_name?: string;
-  delay_ms?: number;
-}
-
-export interface GuideTheme {
-  primaryColor?: string;
-  backgroundColor?: string;
-  textColor?: string;
-  borderRadius?: string;
-  fontFamily?: string;
-}
-
-export interface GuidesResponse {
-  guides: Guide[];
-  completedGuides: string[];
-}
 
 export type GuideEventType =
   | 'started'
@@ -952,14 +1002,4 @@ export interface GuideAnalyticsEvent {
   sessionId: string;
   userId?: string;
   metadata?: Record<string, unknown>;
-}
-
-export interface TooltipOptions {
-  position?: TooltipPosition;
-  showProgress?: boolean;
-  showSkip?: boolean;
-  onNext?: () => void;
-  onPrev?: () => void;
-  onSkip?: () => void;
-  onClose?: () => void;
 }
