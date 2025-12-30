@@ -41,7 +41,7 @@
 export { CensusProvider, useCensus, useCensusContext, useIdentify } from './context';
 
 // Hooks
-export { useFeedback, useArticles, useArticle, useRequests, useTrack } from './hooks';
+export { useFeedback, useArticles, useArticle, useRequests, useVote, useTrack, useFeatureGroups } from './hooks';
 
 // Components
 export { FeedbackButton } from './components/FeedbackButton';
@@ -61,6 +61,10 @@ export type {
   ArticlesOptions,
   Request,
   RequestsOptions,
+  RequestsSettings,
+  FeedbackVisibility,
   CensusTheme,
   Position,
+  Feature,
+  FeatureGroup,
 } from '../types';

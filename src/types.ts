@@ -216,6 +216,23 @@ export interface Request {
   rating: number | null;
   helpful: boolean | null;
   metadata: Record<string, unknown>;
+  vote_count: number;
+  user_has_voted: boolean;
+  is_own: boolean;
+}
+
+/**
+ * Feedback visibility setting
+ */
+export type FeedbackVisibility = 'own' | 'organization' | 'all';
+
+/**
+ * Project settings for requests
+ */
+export interface RequestsSettings {
+  feedbackVisibility: FeedbackVisibility;
+  allowVoting: boolean;
+  allowRequestCreation: boolean;
 }
 
 /**
@@ -256,6 +273,7 @@ export interface RequestsResponse {
     offset: number;
     hasMore: boolean;
   };
+  settings: RequestsSettings;
 }
 
 /**
@@ -537,6 +555,43 @@ export type GuideEventType =
   | 'completed'
   | 'skipped'
   | 'dismissed';
+
+// ============================================
+// Feature Groups Types
+// ============================================
+
+/**
+ * A feature within a feature group
+ */
+export interface Feature {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  status: string;
+  article_count: number;
+}
+
+/**
+ * A group of related features
+ */
+export interface FeatureGroup {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  color: string | null;
+  features: Feature[];
+  feature_count: number;
+  article_count: number;
+}
+
+/**
+ * Response from feature groups endpoint
+ */
+export interface FeatureGroupsResponse {
+  feature_groups: FeatureGroup[];
+}
 
 export interface GuideAnalyticsEvent {
   guideId: string;

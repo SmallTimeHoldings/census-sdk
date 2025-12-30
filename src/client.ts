@@ -12,6 +12,7 @@ import type {
   Guide,
   GuidesResponse,
   GuideAnalyticsEvent,
+  FeatureGroupsResponse,
 } from './types';
 
 /**
@@ -232,6 +233,29 @@ export class CensusClient {
   }
 
   /**
+   * Fetch feature groups with their features and article counts.
+   * Used for navigation in the knowledge base.
+   *
+   * @returns Feature groups with nested features
+   *
+   * @example
+   * ```typescript
+   * const { feature_groups } = await census.getFeatureGroups();
+   * feature_groups.forEach(group => {
+   *   console.log(group.name, group.features.length);
+   * });
+   * ```
+   */
+  async getFeatureGroups(): Promise<FeatureGroupsResponse> {
+    const response = await this.request<FeatureGroupsResponse>(
+      '/api/sdk/feature-groups',
+      'GET'
+    );
+    this.log('Fetched feature groups:', response.feature_groups.length);
+    return response;
+  }
+
+  /**
    * Fetch the current user's submitted requests (feedback, bugs, feature requests).
    * Requires a user to be identified first.
    *
@@ -267,6 +291,51 @@ export class CensusClient {
       'GET'
     );
     this.log('Fetched requests:', response.requests.length);
+    return response;
+  }
+
+  /**
+   * Vote on a feedback request (toggle).
+   * If the user has already voted, removes the vote.
+   * If the user hasn't voted, adds a vote.
+   *
+   * @param feedbackId - ID of the feedback to vote on
+   * @returns Vote result with action taken and new vote count
+   *
+   * @example
+   * ```typescript
+   * // Vote on a feedback request
+   * const result = await census.vote('feedback-id-123');
+   * console.log(result.action); // 'added' or 'removed'
+   * console.log(result.vote_count); // 5
+   * console.log(result.user_has_voted); // true
+   * ```
+   */
+  async vote(feedbackId: string): Promise<{
+    success: boolean;
+    action: 'added' | 'removed';
+    vote_count: number;
+    user_has_voted: boolean;
+  }> {
+    if (!this.currentUserId) {
+      throw new Error('Census: User must be identified before voting. Call identify() first.');
+    }
+
+    if (!feedbackId) {
+      throw new Error('Census: feedbackId is required for vote()');
+    }
+
+    const response = await this.request<{
+      success: boolean;
+      action: 'added' | 'removed';
+      vote_count: number;
+      user_has_voted: boolean;
+    }>('/api/sdk/requests/vote', 'POST', {
+      feedbackId,
+      userId: this.currentUserId,
+    });
+
+    this.log('Vote result:', response.action, 'for feedback:', feedbackId);
     return response;
   }
 
