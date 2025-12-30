@@ -110,6 +110,21 @@ const LoaderIcon = () => (
   </svg>
 );
 
+// Theme colors matching /docs design
+const theme = {
+  primary: '#c45a2c',
+  primaryHover: '#a84a24',
+  primaryLight: 'rgba(196, 90, 44, 0.1)',
+  primaryLightHover: 'rgba(196, 90, 44, 0.2)',
+  background: '#faf9f7',
+  surface: '#ffffff',
+  border: '#e8e4df',
+  borderLight: '#f0ece8',
+  text: '#111827',
+  textMuted: '#6b7280',
+  textLight: '#9ca3af',
+};
+
 const styles = {
   container: {
     fontFamily: 'system-ui, -apple-system, sans-serif',
@@ -130,28 +145,25 @@ const styles = {
   },
   tabs: {
     display: 'flex',
-    gap: '4px',
-    padding: '4px',
-    backgroundColor: '#f3f4f6',
-    borderRadius: '8px',
-    marginBottom: '24px',
+    borderBottom: `1px solid ${theme.border}`,
+    marginBottom: '32px',
+    gap: '0',
   },
   tab: {
-    flex: 1,
-    padding: '8px 16px',
+    padding: '12px 24px',
     fontSize: '14px',
     fontWeight: 500,
     border: 'none',
-    borderRadius: '6px',
+    borderBottom: '2px solid transparent',
     cursor: 'pointer',
     transition: 'all 0.15s',
     backgroundColor: 'transparent',
-    color: '#6b7280',
+    color: theme.textMuted,
+    marginBottom: '-1px',
   },
   tabActive: {
-    backgroundColor: '#ffffff',
-    color: '#111827',
-    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+    color: theme.primary,
+    borderBottomColor: theme.primary,
   },
   searchContainer: {
     position: 'relative' as const,
@@ -162,23 +174,26 @@ const styles = {
     left: '12px',
     top: '50%',
     transform: 'translateY(-50%)',
-    color: '#9ca3af',
+    color: theme.textLight,
   },
   searchInput: {
     width: '100%',
-    padding: '8px 12px 8px 36px',
+    padding: '10px 12px 10px 36px',
     fontSize: '14px',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${theme.border}`,
     borderRadius: '8px',
     outline: 'none',
+    backgroundColor: theme.surface,
+    boxSizing: 'border-box' as const,
   },
   sectionTitle: {
     fontSize: '11px',
     fontWeight: 600,
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
-    color: '#6b7280',
+    color: theme.textMuted,
     marginBottom: '12px',
+    marginTop: '24px',
   },
   navList: {
     listStyle: 'none',
@@ -192,27 +207,28 @@ const styles = {
     width: '100%',
     padding: '8px 12px',
     fontSize: '14px',
-    color: '#4b5563',
+    color: theme.textMuted,
     backgroundColor: 'transparent',
     border: 'none',
-    borderRadius: '6px',
+    borderRadius: '8px',
     cursor: 'pointer',
     textAlign: 'left' as const,
+    transition: 'all 0.15s',
   },
   navItemActive: {
-    backgroundColor: '#f3f4f6',
-    color: '#111827',
+    backgroundColor: theme.borderLight,
+    color: theme.text,
     fontWeight: 500,
   },
   subNav: {
     marginLeft: '24px',
     marginTop: '4px',
     paddingLeft: '12px',
-    borderLeft: '1px solid #e5e7eb',
+    borderLeft: `1px solid ${theme.border}`,
   },
   articleGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
     gap: '16px',
   },
   articleCard: {
@@ -220,12 +236,16 @@ const styles = {
     alignItems: 'flex-start',
     gap: '16px',
     padding: '16px',
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    backgroundColor: '#ffffff',
+    border: `1px solid ${theme.border}`,
+    borderRadius: '12px',
+    backgroundColor: theme.surface,
     cursor: 'pointer',
-    transition: 'all 0.15s',
+    transition: 'all 0.2s ease',
     textAlign: 'left' as const,
+  },
+  articleCardHover: {
+    borderColor: 'rgba(196, 90, 44, 0.3)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
   },
   articleIcon: {
     flexShrink: 0,
@@ -234,33 +254,47 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f3f4f6',
-    borderRadius: '8px',
-    color: '#6b7280',
+    backgroundColor: theme.primaryLight,
+    borderRadius: '10px',
+    color: theme.primary,
+    transition: 'background-color 0.2s',
+  },
+  articleIconHover: {
+    backgroundColor: theme.primaryLightHover,
   },
   articleContent: {
     flex: 1,
     minWidth: 0,
   },
   articleTitle: {
-    fontSize: '14px',
+    fontSize: '15px',
     fontWeight: 500,
-    color: '#111827',
+    color: theme.text,
     margin: 0,
+    lineHeight: 1.4,
   },
   articleDesc: {
     fontSize: '13px',
-    color: '#6b7280',
-    margin: '4px 0 0',
+    color: theme.textMuted,
+    margin: '6px 0 0',
     display: '-webkit-box',
     WebkitLineClamp: 2,
     WebkitBoxOrient: 'vertical' as const,
     overflow: 'hidden',
+    lineHeight: 1.5,
   },
   articleMeta: {
     fontSize: '12px',
-    color: '#9ca3af',
-    marginTop: '8px',
+    color: theme.textLight,
+    marginTop: '10px',
+  },
+  articleChevron: {
+    flexShrink: 0,
+    color: theme.textLight,
+    transition: 'color 0.2s',
+  },
+  articleChevronHover: {
+    color: theme.textMuted,
   },
   backButton: {
     display: 'inline-flex',
@@ -268,188 +302,236 @@ const styles = {
     gap: '8px',
     padding: '8px 0',
     fontSize: '14px',
-    color: '#6b7280',
+    color: theme.textMuted,
     backgroundColor: 'transparent',
     border: 'none',
     cursor: 'pointer',
     marginBottom: '24px',
+    transition: 'color 0.15s',
   },
   articleDetail: {
     maxWidth: '720px',
   },
   articleDetailTitle: {
-    fontSize: '28px',
+    fontSize: '32px',
     fontWeight: 700,
-    color: '#111827',
+    color: theme.text,
     margin: 0,
+    lineHeight: 1.2,
   },
   articleDetailMeta: {
     display: 'flex',
     alignItems: 'center',
-    gap: '4px',
+    gap: '6px',
     fontSize: '14px',
-    color: '#6b7280',
-    marginTop: '8px',
+    color: theme.textMuted,
+    marginTop: '12px',
   },
   articleDetailContent: {
     marginTop: '32px',
-    fontSize: '15px',
-    lineHeight: 1.7,
+    fontSize: '16px',
+    lineHeight: 1.75,
     color: '#374151',
   },
   emptyState: {
     textAlign: 'center' as const,
-    padding: '48px 24px',
-    color: '#6b7280',
+    padding: '64px 24px',
+    color: theme.textMuted,
   },
   emptyIcon: {
-    color: '#d1d5db',
+    color: theme.border,
     marginBottom: '16px',
   },
   emptyTitle: {
-    fontSize: '16px',
-    fontWeight: 500,
-    color: '#111827',
+    fontSize: '18px',
+    fontWeight: 600,
+    color: theme.text,
     margin: '0 0 8px',
   },
   emptyText: {
     fontSize: '14px',
     margin: 0,
+    color: theme.textMuted,
   },
   loading: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '8px',
-    padding: '48px',
-    color: '#6b7280',
+    gap: '12px',
+    padding: '64px',
+    color: theme.textMuted,
     fontSize: '14px',
   },
   // Request styles
   requestCard: {
-    border: '1px solid #e5e7eb',
-    borderRadius: '8px',
-    padding: '16px',
-    backgroundColor: '#ffffff',
+    border: `1px solid ${theme.border}`,
+    borderRadius: '12px',
+    padding: '20px',
+    backgroundColor: theme.surface,
     marginBottom: '12px',
+    transition: 'border-color 0.2s',
   },
   requestHeader: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    marginBottom: '8px',
+    marginBottom: '12px',
   },
   badge: {
     display: 'inline-flex',
     alignItems: 'center',
-    padding: '2px 8px',
+    padding: '4px 10px',
     borderRadius: '9999px',
     fontSize: '12px',
     fontWeight: 500,
   },
   requestMessage: {
-    fontSize: '14px',
-    color: '#111827',
+    fontSize: '15px',
+    color: theme.text,
     margin: 0,
-    lineHeight: 1.5,
+    lineHeight: 1.6,
   },
   requestMeta: {
     display: 'flex',
     gap: '12px',
-    marginTop: '8px',
-    fontSize: '12px',
-    color: '#6b7280',
+    marginTop: '12px',
+    fontSize: '13px',
+    color: theme.textMuted,
   },
   form: {
-    padding: '16px',
-    backgroundColor: '#f9fafb',
-    borderRadius: '8px',
-    border: '1px solid #e5e7eb',
+    padding: '20px',
+    backgroundColor: theme.borderLight,
+    borderRadius: '12px',
+    border: `1px solid ${theme.border}`,
     marginBottom: '24px',
   },
   formHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '12px',
+    marginBottom: '16px',
   },
   formTitle: {
-    fontSize: '14px',
-    fontWeight: 500,
-    color: '#111827',
+    fontSize: '16px',
+    fontWeight: 600,
+    color: theme.text,
     margin: 0,
   },
   typeSelector: {
     display: 'flex',
     gap: '8px',
-    marginBottom: '12px',
+    marginBottom: '16px',
   },
   typeButton: {
-    padding: '6px 12px',
-    borderRadius: '6px',
-    border: '1px solid #e5e7eb',
-    backgroundColor: '#ffffff',
-    fontSize: '13px',
+    padding: '8px 16px',
+    borderRadius: '8px',
+    border: `1px solid ${theme.border}`,
+    backgroundColor: theme.surface,
+    fontSize: '14px',
     cursor: 'pointer',
     transition: 'all 0.15s',
+    fontWeight: 500,
   },
   typeButtonActive: {
-    backgroundColor: '#111827',
-    borderColor: '#111827',
+    backgroundColor: theme.primary,
+    borderColor: theme.primary,
     color: '#ffffff',
   },
   textarea: {
     width: '100%',
-    padding: '10px 12px',
-    borderRadius: '6px',
-    border: '1px solid #e5e7eb',
+    padding: '12px 14px',
+    borderRadius: '8px',
+    border: `1px solid ${theme.border}`,
     fontSize: '14px',
     resize: 'vertical' as const,
-    minHeight: '80px',
+    minHeight: '100px',
     fontFamily: 'inherit',
-    marginBottom: '12px',
+    marginBottom: '16px',
     boxSizing: 'border-box' as const,
+    backgroundColor: theme.surface,
   },
   submitButton: {
-    padding: '8px 16px',
-    borderRadius: '6px',
+    padding: '10px 20px',
+    borderRadius: '8px',
     border: 'none',
-    backgroundColor: '#111827',
+    backgroundColor: theme.primary,
     color: '#ffffff',
     fontSize: '14px',
     fontWeight: 500,
     cursor: 'pointer',
-    transition: 'opacity 0.15s',
+    transition: 'all 0.15s',
   },
   newRequestButton: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '6px',
-    padding: '8px 16px',
-    borderRadius: '6px',
+    gap: '8px',
+    padding: '10px 20px',
+    borderRadius: '8px',
     border: 'none',
-    backgroundColor: '#111827',
+    backgroundColor: theme.primary,
     color: '#ffffff',
     fontSize: '14px',
     fontWeight: 500,
     cursor: 'pointer',
     marginBottom: '24px',
+    transition: 'background-color 0.15s',
   },
   successMessage: {
-    padding: '12px',
+    padding: '14px 16px',
     backgroundColor: '#d1fae5',
-    borderRadius: '6px',
+    borderRadius: '8px',
     color: '#059669',
     fontSize: '14px',
     marginBottom: '16px',
+    fontWeight: 500,
   },
 };
 
-// Add keyframes for spinner
+// Add keyframes for spinner and hover styles
 const spinnerStyles = `
   @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+  }
+
+  .census-article-card:hover {
+    border-color: rgba(196, 90, 44, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .census-article-card:hover .census-article-icon {
+    background-color: rgba(196, 90, 44, 0.2) !important;
+  }
+
+  .census-article-card:hover .census-article-chevron {
+    color: #6b7280 !important;
+  }
+
+  .census-nav-item:hover {
+    background-color: #f0ece8 !important;
+    color: #111827 !important;
+  }
+
+  .census-back-btn:hover {
+    color: #111827 !important;
+  }
+
+  .census-submit-btn:hover {
+    background-color: #a84a24 !important;
+  }
+
+  .census-new-request-btn:hover {
+    background-color: #a84a24 !important;
+  }
+
+  .census-tab:hover {
+    color: #111827 !important;
+  }
+
+  .census-search-input:focus {
+    border-color: #c45a2c !important;
+    outline: none !important;
+    box-shadow: 0 0 0 1px #c45a2c !important;
   }
 `;
 
@@ -545,7 +627,7 @@ export function HelpCenter({
 
     return (
       <div style={styles.articleDetail}>
-        <button onClick={() => setSelectedArticle(null)} style={styles.backButton}>
+        <button onClick={() => setSelectedArticle(null)} style={styles.backButton} className="census-back-btn">
           <ArrowLeftIcon />
           Back to articles
         </button>
@@ -603,8 +685,9 @@ export function HelpCenter({
             key={article.id}
             onClick={() => setSelectedArticle(article)}
             style={styles.articleCard}
+            className="census-article-card"
           >
-            <div style={styles.articleIcon}>
+            <div style={styles.articleIcon} className="census-article-icon">
               <BookIcon />
             </div>
             <div style={styles.articleContent}>
@@ -616,7 +699,9 @@ export function HelpCenter({
                 <p style={styles.articleMeta}>{article.read_time_minutes} min read</p>
               )}
             </div>
-            <ChevronRightIcon />
+            <span style={styles.articleChevron} className="census-article-chevron">
+              <ChevronRightIcon />
+            </span>
           </button>
         ))}
       </div>
@@ -636,7 +721,7 @@ export function HelpCenter({
 
     if (!showForm) {
       return (
-        <button onClick={() => setShowForm(true)} style={styles.newRequestButton}>
+        <button onClick={() => setShowForm(true)} style={styles.newRequestButton} className="census-new-request-btn">
           <PlusIcon />
           New Request
         </button>
@@ -681,6 +766,7 @@ export function HelpCenter({
           type="submit"
           style={{ ...styles.submitButton, opacity: isSubmitting ? 0.6 : 1 }}
           disabled={isSubmitting}
+          className="census-submit-btn"
         >
           {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>
@@ -764,6 +850,7 @@ export function HelpCenter({
                 ...styles.tab,
                 ...(activeTab === tab ? styles.tabActive : {}),
               }}
+              className={activeTab !== tab ? 'census-tab' : undefined}
             >
               {mergedLabels[tab]}
             </button>
@@ -785,6 +872,7 @@ export function HelpCenter({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={styles.searchInput}
+                className="census-search-input"
               />
             </div>
           )}
@@ -801,6 +889,7 @@ export function HelpCenter({
                       ...styles.navItem,
                       ...(!selectedFeatureId ? styles.navItemActive : {}),
                     }}
+                    className={selectedFeatureId ? 'census-nav-item' : undefined}
                   >
                     All Articles
                   </button>
@@ -810,6 +899,7 @@ export function HelpCenter({
                     <button
                       onClick={() => toggleGroup(group.id)}
                       style={styles.navItem}
+                      className="census-nav-item"
                     >
                       <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <LayersIcon />
@@ -829,6 +919,7 @@ export function HelpCenter({
                                 fontSize: '13px',
                                 ...(selectedFeatureId === feature.id ? styles.navItemActive : {}),
                               }}
+                              className={selectedFeatureId !== feature.id ? 'census-nav-item' : undefined}
                             >
                               {feature.name}
                             </button>
