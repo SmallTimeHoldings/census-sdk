@@ -600,7 +600,7 @@ export function HelpCenter({
   const styles = useMemo(() => createStyles(themeColors), [themeColors]);
   const hoverStyles = useMemo(() => createHoverStyles(themeColors, isDark), [themeColors, isDark]);
 
-  const { isIdentified } = useCensusContext();
+  const { isIdentified, isReady } = useCensusContext();
   const { articles, isLoading: articlesLoading } = useArticles({ search: searchQuery || undefined });
   const { article: fullArticle, isLoading: articleLoading } = useArticle(selectedArticle?.slug || '');
   const { requests, isLoading: requestsLoading, refetch: refetchRequests, settings } = useRequests({ limit: 50 });
@@ -824,6 +824,16 @@ export function HelpCenter({
   };
 
   const renderRequests = () => {
+    // Wait for SDK to be ready before checking identification
+    if (!isReady) {
+      return (
+        <div style={styles.loading}>
+          <LoaderIcon />
+          <span>Loading...</span>
+        </div>
+      );
+    }
+
     if (!isIdentified) {
       return (
         <div style={styles.emptyState}>
