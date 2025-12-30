@@ -297,7 +297,7 @@ const typeConfig: Record<FeedbackType, { label: string; color: string; bg: strin
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
   new: { label: 'New', color: '#6b7280', bg: '#f3f4f6' },
-  reviewed: { label: 'Reviewed', color: '#2563eb', bg: '#dbeafe' },
+  planned: { label: 'Planned', color: '#2563eb', bg: '#dbeafe' },
   in_progress: { label: 'In Progress', color: '#d97706', bg: '#fef3c7' },
   resolved: { label: 'Resolved', color: '#059669', bg: '#d1fae5' },
   closed: { label: 'Closed', color: '#6b7280', bg: '#f3f4f6' },
@@ -731,7 +731,7 @@ export function HelpCenter({
   const { requests } = useRequests({ limit: 100 });
 
   const openRequestsCount = requests.filter((r) =>
-    ['new', 'reviewed', 'in_progress'].includes(r.status)
+    ['new', 'planned', 'in_progress'].includes(r.status)
   ).length;
 
   // Merge tab labels
