@@ -47,6 +47,8 @@ export { useFeedback, useArticles, useArticle, useRequests, useVote, useTrack, u
 export { FeedbackButton } from './components/FeedbackButton';
 export { KnowledgeBase } from './components/KnowledgeBase';
 export { Requests } from './components/Requests';
+export { HelpCenter } from './components/HelpCenter';
+export type { HelpCenterProps, HelpCenterTab } from './components/HelpCenter';
 
 // Re-export types that are commonly used with React
 export type {
