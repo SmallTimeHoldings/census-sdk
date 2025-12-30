@@ -1,6 +1,6 @@
 {
   "name": "@census-ai/census-sdk",
-  "version": "0.4.3",
+  "version": "0.4.6",
   "description": "Official Census SDK for integrating feedback, knowledge base, and analytics into your application",
   "author": "Census AI",
   "license": "MIT",
@@ -86,5 +86,8 @@
   "bugs": {
     "url": "https://github.com/census-ai/census/issues"
   },
-  "homepage": "https://census.ai"
+  "homepage": "https://census.ai",
+  "dependencies": {
+    "@census-ai/census-sdk": "^0.4.3"
+  }
 }

@@ -241,6 +241,23 @@ export interface BatchEventsOptions {
 }
 
 /**
+ * Feature group tag on a request
+ */
+export interface RequestFeatureGroup {
+  id: string;
+  name: string;
+  color: string | null;
+}
+
+/**
+ * Feature tag on a request
+ */
+export interface RequestFeature {
+  id: string;
+  name: string;
+}
+
+/**
  * A user's submitted request (feedback, bug report, feature request)
  */
 export interface Request {
@@ -253,6 +270,8 @@ export interface Request {
   rating: number | null;
   helpful: boolean | null;
   metadata: Record<string, unknown>;
+  feature_group: RequestFeatureGroup | null;
+  feature: RequestFeature | null;
 }
 
 /**

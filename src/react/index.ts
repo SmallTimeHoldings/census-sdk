@@ -57,7 +57,7 @@ export {
 export { FeedbackButton } from './components/FeedbackButton';
 export { KnowledgeBase } from './components/KnowledgeBase';
 export { Requests } from './components/Requests';
-export { HelpCenter } from './components/HelpCenter';
+export { HelpCenter, type HelpCenterTheme } from './components/HelpCenter';
 export { GuideBuilder } from './components/GuideBuilder';
 export {
   GuideRenderer,
