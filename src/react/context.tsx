@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
 import { createCensus, CensusClient } from '../client';
 import type { CensusProviderProps, CensusTheme, UserIdentity } from '../types';
 
@@ -146,22 +146,25 @@ export function useIdentify() {
   const [isIdentifying, setIsIdentifying] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const identify = async (user: UserIdentity) => {
-    setIsIdentifying(true);
-    setError(null);
-    try {
-      await client.identify(user);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to identify user'));
-      throw err;
-    } finally {
-      setIsIdentifying(false);
-    }
-  };
+  const identify = useCallback(
+    async (user: UserIdentity) => {
+      setIsIdentifying(true);
+      setError(null);
+      try {
+        await client.identify(user);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to identify user'));
+        throw err;
+      } finally {
+        setIsIdentifying(false);
+      }
+    },
+    [client]
+  );
 
-  const reset = () => {
+  const reset = useCallback(() => {
     client.reset();
-  };
+  }, [client]);
 
   return {
     identify,

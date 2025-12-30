@@ -6,6 +6,7 @@ import { useCensusContext } from '../context';
 import type { Article, FeedbackType } from '../../types';
 
 export type HelpCenterTab = 'articles' | 'requests';
+export type HelpCenterTheme = 'light' | 'dark' | 'auto';
 
 export interface HelpCenterProps {
   tabs?: HelpCenterTab[];
@@ -13,6 +14,8 @@ export interface HelpCenterProps {
   tabLabels?: Partial<Record<HelpCenterTab, string>>;
   showSearch?: boolean;
   className?: string;
+  /** Theme mode: 'light', 'dark', or 'auto' (inherits from system/parent) */
+  theme?: HelpCenterTheme;
 }
 
 const defaultTabLabels: Record<HelpCenterTab, string> = {
@@ -110,30 +113,53 @@ const LoaderIcon = () => (
   </svg>
 );
 
-// Theme colors matching /docs design
-const theme = {
-  primary: '#c45a2c',
-  primaryHover: '#a84a24',
-  primaryLight: 'rgba(196, 90, 44, 0.1)',
-  primaryLightHover: 'rgba(196, 90, 44, 0.2)',
-  background: '#faf9f7',
-  surface: '#ffffff',
-  border: '#e8e4df',
-  borderLight: '#f0ece8',
-  text: '#111827',
-  textMuted: '#6b7280',
-  textLight: '#9ca3af',
+// Theme definitions
+const themes = {
+  light: {
+    primary: '#c45a2c',
+    primaryHover: '#a84a24',
+    primaryLight: 'rgba(196, 90, 44, 0.08)',
+    primaryLightHover: 'rgba(196, 90, 44, 0.15)',
+    background: 'transparent',
+    surface: '#ffffff',
+    surfaceHover: '#fafafa',
+    border: 'rgba(0, 0, 0, 0.08)',
+    borderHover: 'rgba(196, 90, 44, 0.25)',
+    text: '#1a1a1a',
+    textSecondary: '#525252',
+    textMuted: '#737373',
+    textLight: '#a3a3a3',
+  },
+  dark: {
+    primary: '#e07347',
+    primaryHover: '#f08a5d',
+    primaryLight: 'rgba(224, 115, 71, 0.12)',
+    primaryLightHover: 'rgba(224, 115, 71, 0.2)',
+    background: 'transparent',
+    surface: 'rgba(255, 255, 255, 0.03)',
+    surfaceHover: 'rgba(255, 255, 255, 0.06)',
+    border: 'rgba(255, 255, 255, 0.08)',
+    borderHover: 'rgba(224, 115, 71, 0.35)',
+    text: '#fafafa',
+    textSecondary: '#d4d4d4',
+    textMuted: '#a3a3a3',
+    textLight: '#737373',
+  },
 };
 
-const styles = {
+type ThemeColors = typeof themes.light;
+
+// Create styles dynamically based on theme
+const createStyles = (t: ThemeColors) => ({
   container: {
-    fontFamily: 'system-ui, -apple-system, sans-serif',
+    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     minHeight: '400px',
+    color: t.text,
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: '240px 1fr',
-    gap: '48px',
+    gridTemplateColumns: '220px 1fr',
+    gap: '40px',
   },
   sidebar: {
     position: 'sticky' as const,
@@ -145,12 +171,12 @@ const styles = {
   },
   tabs: {
     display: 'flex',
-    borderBottom: `1px solid ${theme.border}`,
-    marginBottom: '32px',
+    borderBottom: `1px solid ${t.border}`,
+    marginBottom: '28px',
     gap: '0',
   },
   tab: {
-    padding: '12px 24px',
+    padding: '10px 20px',
     fontSize: '14px',
     fontWeight: 500,
     border: 'none',
@@ -158,42 +184,43 @@ const styles = {
     cursor: 'pointer',
     transition: 'all 0.15s',
     backgroundColor: 'transparent',
-    color: theme.textMuted,
+    color: t.textMuted,
     marginBottom: '-1px',
   },
   tabActive: {
-    color: theme.primary,
-    borderBottomColor: theme.primary,
+    color: t.primary,
+    borderBottomColor: t.primary,
   },
   searchContainer: {
     position: 'relative' as const,
-    marginBottom: '24px',
+    marginBottom: '20px',
   },
   searchIcon: {
     position: 'absolute' as const,
-    left: '12px',
+    left: '10px',
     top: '50%',
     transform: 'translateY(-50%)',
-    color: theme.textLight,
+    color: t.textLight,
   },
   searchInput: {
     width: '100%',
-    padding: '10px 12px 10px 36px',
-    fontSize: '14px',
-    border: `1px solid ${theme.border}`,
-    borderRadius: '8px',
+    padding: '8px 10px 8px 32px',
+    fontSize: '13px',
+    border: `1px solid ${t.border}`,
+    borderRadius: '6px',
     outline: 'none',
-    backgroundColor: theme.surface,
+    backgroundColor: 'transparent',
+    color: t.text,
     boxSizing: 'border-box' as const,
   },
   sectionTitle: {
-    fontSize: '11px',
+    fontSize: '10px',
     fontWeight: 600,
     textTransform: 'uppercase' as const,
     letterSpacing: '0.05em',
-    color: theme.textMuted,
-    marginBottom: '12px',
-    marginTop: '24px',
+    color: t.textLight,
+    marginBottom: '8px',
+    marginTop: '20px',
   },
   navList: {
     listStyle: 'none',
@@ -205,78 +232,71 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    padding: '8px 12px',
-    fontSize: '14px',
-    color: theme.textMuted,
+    padding: '6px 10px',
+    fontSize: '13px',
+    color: t.textSecondary,
     backgroundColor: 'transparent',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '6px',
     cursor: 'pointer',
     textAlign: 'left' as const,
     transition: 'all 0.15s',
   },
   navItemActive: {
-    backgroundColor: theme.borderLight,
-    color: theme.text,
+    backgroundColor: t.surfaceHover,
+    color: t.text,
     fontWeight: 500,
   },
   subNav: {
-    marginLeft: '24px',
-    marginTop: '4px',
-    paddingLeft: '12px',
-    borderLeft: `1px solid ${theme.border}`,
+    marginLeft: '20px',
+    marginTop: '2px',
+    paddingLeft: '10px',
+    borderLeft: `1px solid ${t.border}`,
   },
   articleGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-    gap: '16px',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+    gap: '12px',
   },
   articleCard: {
     display: 'flex',
     alignItems: 'flex-start',
-    gap: '16px',
-    padding: '16px',
-    border: `1px solid ${theme.border}`,
-    borderRadius: '12px',
-    backgroundColor: theme.surface,
+    gap: '12px',
+    padding: '14px',
+    border: `1px solid ${t.border}`,
+    borderRadius: '8px',
+    backgroundColor: t.surface,
     cursor: 'pointer',
     transition: 'all 0.2s ease',
     textAlign: 'left' as const,
   },
-  articleCardHover: {
-    borderColor: 'rgba(196, 90, 44, 0.3)',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-  },
   articleIcon: {
     flexShrink: 0,
-    width: '40px',
-    height: '40px',
+    width: '36px',
+    height: '36px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.primaryLight,
-    borderRadius: '10px',
-    color: theme.primary,
+    backgroundColor: t.primaryLight,
+    borderRadius: '8px',
+    color: t.primary,
     transition: 'background-color 0.2s',
-  },
-  articleIconHover: {
-    backgroundColor: theme.primaryLightHover,
   },
   articleContent: {
     flex: 1,
     minWidth: 0,
   },
   articleTitle: {
-    fontSize: '15px',
+    fontSize: '14px',
     fontWeight: 500,
-    color: theme.text,
+    color: t.text,
     margin: 0,
     lineHeight: 1.4,
   },
   articleDesc: {
-    fontSize: '13px',
-    color: theme.textMuted,
-    margin: '6px 0 0',
+    fontSize: '12px',
+    color: t.textMuted,
+    margin: '4px 0 0',
     display: '-webkit-box',
     WebkitLineClamp: 2,
     WebkitBoxOrient: 'vertical' as const,
@@ -284,179 +304,179 @@ const styles = {
     lineHeight: 1.5,
   },
   articleMeta: {
-    fontSize: '12px',
-    color: theme.textLight,
-    marginTop: '10px',
+    fontSize: '11px',
+    color: t.textLight,
+    marginTop: '6px',
   },
   articleChevron: {
     flexShrink: 0,
-    color: theme.textLight,
+    color: t.textLight,
     transition: 'color 0.2s',
-  },
-  articleChevronHover: {
-    color: theme.textMuted,
   },
   backButton: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '8px',
-    padding: '8px 0',
-    fontSize: '14px',
-    color: theme.textMuted,
+    gap: '6px',
+    padding: '6px 0',
+    fontSize: '13px',
+    color: t.textMuted,
     backgroundColor: 'transparent',
     border: 'none',
     cursor: 'pointer',
-    marginBottom: '24px',
+    marginBottom: '20px',
     transition: 'color 0.15s',
   },
   articleDetail: {
     maxWidth: '720px',
   },
   articleDetailTitle: {
-    fontSize: '32px',
-    fontWeight: 700,
-    color: theme.text,
+    fontSize: '28px',
+    fontWeight: 600,
+    color: t.text,
     margin: 0,
-    lineHeight: 1.2,
+    lineHeight: 1.3,
   },
   articleDetailMeta: {
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
-    fontSize: '14px',
-    color: theme.textMuted,
-    marginTop: '12px',
+    fontSize: '13px',
+    color: t.textMuted,
+    marginTop: '10px',
   },
   articleDetailContent: {
-    marginTop: '32px',
-    fontSize: '16px',
-    lineHeight: 1.75,
-    color: '#374151',
+    marginTop: '28px',
+    fontSize: '15px',
+    lineHeight: 1.7,
+    color: t.textSecondary,
   },
   emptyState: {
     textAlign: 'center' as const,
-    padding: '64px 24px',
-    color: theme.textMuted,
+    padding: '48px 24px',
+    color: t.textMuted,
   },
   emptyIcon: {
-    color: theme.border,
-    marginBottom: '16px',
+    color: t.textLight,
+    marginBottom: '12px',
+    opacity: 0.5,
   },
   emptyTitle: {
-    fontSize: '18px',
-    fontWeight: 600,
-    color: theme.text,
-    margin: '0 0 8px',
+    fontSize: '16px',
+    fontWeight: 500,
+    color: t.text,
+    margin: '0 0 6px',
   },
   emptyText: {
-    fontSize: '14px',
+    fontSize: '13px',
     margin: 0,
-    color: theme.textMuted,
+    color: t.textMuted,
   },
   loading: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '12px',
-    padding: '64px',
-    color: theme.textMuted,
-    fontSize: '14px',
+    gap: '10px',
+    padding: '48px',
+    color: t.textMuted,
+    fontSize: '13px',
   },
   // Request styles
   requestCard: {
-    border: `1px solid ${theme.border}`,
-    borderRadius: '12px',
-    padding: '20px',
-    backgroundColor: theme.surface,
-    marginBottom: '12px',
+    border: `1px solid ${t.border}`,
+    borderRadius: '8px',
+    padding: '16px',
+    backgroundColor: t.surface,
+    marginBottom: '10px',
     transition: 'border-color 0.2s',
   },
   requestHeader: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
-    marginBottom: '12px',
+    gap: '6px',
+    marginBottom: '10px',
   },
   badge: {
     display: 'inline-flex',
     alignItems: 'center',
-    padding: '4px 10px',
+    padding: '3px 8px',
     borderRadius: '9999px',
-    fontSize: '12px',
+    fontSize: '11px',
     fontWeight: 500,
   },
   requestMessage: {
-    fontSize: '15px',
-    color: theme.text,
+    fontSize: '14px',
+    color: t.text,
     margin: 0,
-    lineHeight: 1.6,
+    lineHeight: 1.5,
   },
   requestMeta: {
     display: 'flex',
     gap: '12px',
-    marginTop: '12px',
-    fontSize: '13px',
-    color: theme.textMuted,
+    marginTop: '10px',
+    fontSize: '12px',
+    color: t.textMuted,
   },
   form: {
-    padding: '20px',
-    backgroundColor: theme.borderLight,
-    borderRadius: '12px',
-    border: `1px solid ${theme.border}`,
-    marginBottom: '24px',
+    padding: '16px',
+    backgroundColor: t.surface,
+    borderRadius: '8px',
+    border: `1px solid ${t.border}`,
+    marginBottom: '20px',
   },
   formHeader: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: '16px',
+    marginBottom: '12px',
   },
   formTitle: {
-    fontSize: '16px',
-    fontWeight: 600,
-    color: theme.text,
+    fontSize: '14px',
+    fontWeight: 500,
+    color: t.text,
     margin: 0,
   },
   typeSelector: {
     display: 'flex',
-    gap: '8px',
-    marginBottom: '16px',
+    gap: '6px',
+    marginBottom: '12px',
   },
   typeButton: {
-    padding: '8px 16px',
-    borderRadius: '8px',
-    border: `1px solid ${theme.border}`,
-    backgroundColor: theme.surface,
-    fontSize: '14px',
+    padding: '6px 12px',
+    borderRadius: '6px',
+    border: `1px solid ${t.border}`,
+    backgroundColor: 'transparent',
+    color: t.textSecondary,
+    fontSize: '13px',
     cursor: 'pointer',
     transition: 'all 0.15s',
     fontWeight: 500,
   },
   typeButtonActive: {
-    backgroundColor: theme.primary,
-    borderColor: theme.primary,
+    backgroundColor: t.primary,
+    borderColor: t.primary,
     color: '#ffffff',
   },
   textarea: {
     width: '100%',
-    padding: '12px 14px',
-    borderRadius: '8px',
-    border: `1px solid ${theme.border}`,
-    fontSize: '14px',
+    padding: '10px 12px',
+    borderRadius: '6px',
+    border: `1px solid ${t.border}`,
+    fontSize: '13px',
     resize: 'vertical' as const,
-    minHeight: '100px',
+    minHeight: '80px',
     fontFamily: 'inherit',
-    marginBottom: '16px',
+    marginBottom: '12px',
     boxSizing: 'border-box' as const,
-    backgroundColor: theme.surface,
+    backgroundColor: 'transparent',
+    color: t.text,
   },
   submitButton: {
-    padding: '10px 20px',
-    borderRadius: '8px',
+    padding: '8px 16px',
+    borderRadius: '6px',
     border: 'none',
-    backgroundColor: theme.primary,
+    backgroundColor: t.primary,
     color: '#ffffff',
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: 500,
     cursor: 'pointer',
     transition: 'all 0.15s',
@@ -464,74 +484,82 @@ const styles = {
   newRequestButton: {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '8px',
-    padding: '10px 20px',
-    borderRadius: '8px',
+    gap: '6px',
+    padding: '8px 16px',
+    borderRadius: '6px',
     border: 'none',
-    backgroundColor: theme.primary,
+    backgroundColor: t.primary,
     color: '#ffffff',
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: 500,
     cursor: 'pointer',
-    marginBottom: '24px',
+    marginBottom: '20px',
     transition: 'background-color 0.15s',
   },
   successMessage: {
-    padding: '14px 16px',
-    backgroundColor: '#d1fae5',
-    borderRadius: '8px',
+    padding: '12px 14px',
+    backgroundColor: 'rgba(5, 150, 105, 0.1)',
+    borderRadius: '6px',
     color: '#059669',
-    fontSize: '14px',
-    marginBottom: '16px',
+    fontSize: '13px',
+    marginBottom: '12px',
     fontWeight: 500,
   },
-};
+});
 
-// Add keyframes for spinner and hover styles
-const spinnerStyles = `
+// Create dynamic CSS for hover states
+const createHoverStyles = (t: ThemeColors, isDark: boolean) => `
   @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
 
-  .census-article-card:hover {
-    border-color: rgba(196, 90, 44, 0.3) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  .census-hc .census-article-card:hover {
+    border-color: ${t.borderHover} !important;
+    box-shadow: ${isDark ? '0 4px 12px rgba(0, 0, 0, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.06)'};
   }
 
-  .census-article-card:hover .census-article-icon {
-    background-color: rgba(196, 90, 44, 0.2) !important;
+  .census-hc .census-article-card:hover .census-article-icon {
+    background-color: ${t.primaryLightHover} !important;
   }
 
-  .census-article-card:hover .census-article-chevron {
-    color: #6b7280 !important;
+  .census-hc .census-article-card:hover .census-article-chevron {
+    color: ${t.textSecondary} !important;
   }
 
-  .census-nav-item:hover {
-    background-color: #f0ece8 !important;
-    color: #111827 !important;
+  .census-hc .census-nav-item:hover {
+    background-color: ${t.surfaceHover} !important;
+    color: ${t.text} !important;
   }
 
-  .census-back-btn:hover {
-    color: #111827 !important;
+  .census-hc .census-back-btn:hover {
+    color: ${t.text} !important;
   }
 
-  .census-submit-btn:hover {
-    background-color: #a84a24 !important;
+  .census-hc .census-submit-btn:hover {
+    background-color: ${t.primaryHover} !important;
   }
 
-  .census-new-request-btn:hover {
-    background-color: #a84a24 !important;
+  .census-hc .census-new-request-btn:hover {
+    background-color: ${t.primaryHover} !important;
   }
 
-  .census-tab:hover {
-    color: #111827 !important;
+  .census-hc .census-tab:hover {
+    color: ${t.text} !important;
   }
 
-  .census-search-input:focus {
-    border-color: #c45a2c !important;
+  .census-hc .census-search-input:focus {
+    border-color: ${t.primary} !important;
     outline: none !important;
-    box-shadow: 0 0 0 1px #c45a2c !important;
+    box-shadow: 0 0 0 1px ${t.primary} !important;
+  }
+
+  .census-hc .census-search-input::placeholder {
+    color: ${t.textLight};
+  }
+
+  .census-hc .census-textarea::placeholder {
+    color: ${t.textLight};
   }
 `;
 
@@ -541,6 +569,7 @@ export function HelpCenter({
   tabLabels = {},
   showSearch = true,
   className,
+  theme: themeProp = 'auto',
 }: HelpCenterProps) {
   const [activeTab, setActiveTab] = useState<HelpCenterTab>(defaultTab);
   const [searchQuery, setSearchQuery] = useState('');
@@ -551,6 +580,25 @@ export function HelpCenter({
   const [formType, setFormType] = useState<FeedbackType>('feedback');
   const [formMessage, setFormMessage] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [systemDark, setSystemDark] = useState(false);
+
+  // Detect system theme
+  useEffect(() => {
+    if (themeProp === 'auto') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      setSystemDark(mediaQuery.matches);
+
+      const handler = (e: MediaQueryListEvent) => setSystemDark(e.matches);
+      mediaQuery.addEventListener('change', handler);
+      return () => mediaQuery.removeEventListener('change', handler);
+    }
+  }, [themeProp]);
+
+  // Resolve the actual theme
+  const isDark = themeProp === 'dark' || (themeProp === 'auto' && systemDark);
+  const themeColors = isDark ? themes.dark : themes.light;
+  const styles = useMemo(() => createStyles(themeColors), [themeColors]);
+  const hoverStyles = useMemo(() => createHoverStyles(themeColors, isDark), [themeColors, isDark]);
 
   const { isIdentified } = useCensusContext();
   const { articles, isLoading: articlesLoading } = useArticles({ search: searchQuery || undefined });
@@ -760,6 +808,7 @@ export function HelpCenter({
           onChange={(e) => setFormMessage(e.target.value)}
           placeholder="Describe your request..."
           style={styles.textarea}
+          className="census-textarea"
           required
         />
         <button
@@ -836,8 +885,8 @@ export function HelpCenter({
   };
 
   return (
-    <div style={styles.container} className={className}>
-      <style>{spinnerStyles}</style>
+    <div style={styles.container} className={`census-hc ${className || ''}`}>
+      <style>{hoverStyles}</style>
 
       {/* Tabs */}
       {tabs.length > 1 && (
