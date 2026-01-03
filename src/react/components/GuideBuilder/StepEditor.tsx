@@ -41,6 +41,7 @@ const stepTypeLabels: Record<GuideStepType, string> = {
   slideout: 'Slideout',
   hotspot: 'Hotspot',
   banner: 'Banner',
+  embedded: 'Embedded',
 };
 
 const stepTypeDescriptions: Record<GuideStepType, string> = {
@@ -49,6 +50,7 @@ const stepTypeDescriptions: Record<GuideStepType, string> = {
   slideout: 'Slides in from the side of the screen',
   hotspot: 'Pulsing beacon that expands on click',
   banner: 'Top or bottom bar announcement',
+  embedded: 'Inline content injected into the page',
 };
 
 const positionOptions: { value: TooltipPosition | 'center'; label: string }[] = [

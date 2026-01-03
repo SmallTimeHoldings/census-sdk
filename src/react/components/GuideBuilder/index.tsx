@@ -262,6 +262,7 @@ function GuideBuilderModal({
     slideout: 'Slideout',
     hotspot: 'Hotspot',
     banner: 'Banner',
+    embedded: 'Embedded',
   };
 
   // Handle element selection

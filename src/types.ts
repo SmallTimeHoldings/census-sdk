@@ -329,7 +329,12 @@ export interface CensusError {
 /**
  * Step types for guides
  */
-export type GuideStepType = 'tooltip' | 'modal' | 'slideout' | 'hotspot' | 'banner';
+export type GuideStepType = 'tooltip' | 'modal' | 'slideout' | 'hotspot' | 'banner' | 'embedded';
+
+/**
+ * Position options for embedded guides
+ */
+export type EmbeddedPosition = 'prepend' | 'append' | 'replace';
 
 /**
  * Tooltip position options
@@ -383,6 +388,7 @@ export interface GuideStepDisplayConfig {
   backdrop?: boolean;
   spotlightPadding?: number;
   bannerPosition?: 'top' | 'bottom';
+  embeddedPosition?: EmbeddedPosition;
 }
 
 /**

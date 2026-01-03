@@ -7,6 +7,7 @@ import { ModalStep } from './ModalStep';
 import { SlideoutStep } from './SlideoutStep';
 import { HotspotStep } from './HotspotStep';
 import { BannerStep } from './BannerStep';
+import { EmbeddedStep } from './EmbeddedStep';
 
 export interface GuideRendererProps {
   /**
@@ -156,6 +157,9 @@ export function GuideRenderer({
     case 'banner':
       return <BannerStep {...stepProps} />;
 
+    case 'embedded':
+      return <EmbeddedStep {...stepProps} />;
+
     default:
       // Default to tooltip for unknown types
       return <TooltipStep {...stepProps} />;
@@ -168,6 +172,7 @@ export { ModalStep } from './ModalStep';
 export { SlideoutStep } from './SlideoutStep';
 export { HotspotStep } from './HotspotStep';
 export { BannerStep } from './BannerStep';
+export { EmbeddedStep } from './EmbeddedStep';
 export { Backdrop } from './Backdrop';
 export { StepButtons } from './StepButtons';
 export { StepContent } from './StepContent';
