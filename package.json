@@ -38,6 +38,16 @@
         "types": "./dist/server/server.d.cts",
         "default": "./dist/server/server.cjs"
       }
+    },
+    "./content": {
+      "import": {
+        "types": "./dist/content/index.d.ts",
+        "default": "./dist/content/index.js"
+      },
+      "require": {
+        "types": "./dist/content/index.d.cts",
+        "default": "./dist/content/index.cjs"
+      }
     }
   },
   "files": [
@@ -86,8 +96,5 @@
   "bugs": {
     "url": "https://github.com/census-ai/census/issues"
   },
-  "homepage": "https://census.ai",
-  "dependencies": {
-    "@census-ai/census-sdk": "^0.4.3"
-  }
+  "homepage": "https://census.ai"
 }

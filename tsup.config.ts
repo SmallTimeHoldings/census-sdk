@@ -41,4 +41,15 @@ export default defineConfig([
     treeshake: true,
     minify: true,
   },
+  // Content entry (server-side content fetching for SEO)
+  {
+    entry: ['src/content/index.ts'],
+    outDir: 'dist/content',
+    format: ['cjs', 'esm'],
+    dts: true,
+    splitting: false,
+    sourcemap: true,
+    treeshake: true,
+    minify: true,
+  },
 ]);

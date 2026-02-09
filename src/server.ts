@@ -281,37 +281,74 @@ export class CensusServerClient {
     body?: unknown
   ): Promise<T> {
     const url = `${this.baseUrl}${path}`;
+    const maxRetries = 1;
 
-    const headers: Record<string, string> = {
-      'X-Census-Key': this.apiKey,
-      'Content-Type': 'application/json',
-    };
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30_000);
 
-    this.log(`${method} ${path}`, body);
-
-    const response = await fetch(url, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-    });
-
-    if (!response.ok) {
-      let errorMessage = `Request failed with status ${response.status}`;
       try {
-        const errorData = await response.json();
-        errorMessage = errorData.error || errorMessage;
-      } catch {
-        // Use default error message
-      }
+        const headers: Record<string, string> = {
+          'X-Census-Key': this.apiKey,
+          'Content-Type': 'application/json',
+        };
 
-      const error: CensusError = {
-        error: errorMessage,
-        status: response.status,
-      };
-      throw error;
+        this.log(`${method} ${path}`, body);
+
+        const response = await fetch(url, {
+          method,
+          headers,
+          body: body ? JSON.stringify(body) : undefined,
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          // Retry on 5xx errors
+          if (response.status >= 500 && attempt < maxRetries) {
+            this.log(`Retrying ${method} ${path} after ${response.status}`);
+            await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+            continue;
+          }
+
+          let errorMessage = `Request failed with status ${response.status}`;
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+          } catch {
+            // Use default error message
+          }
+
+          const error: CensusError = {
+            error: errorMessage,
+            status: response.status,
+          };
+          throw error;
+        }
+
+        return response.json();
+      } catch (err) {
+        if (err && typeof err === 'object' && 'error' in err) throw err;
+
+        // Retry on network errors
+        if (attempt < maxRetries) {
+          this.log(`Retrying ${method} ${path} after network error`);
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+          continue;
+        }
+
+        const error: CensusError = {
+          error: controller.signal.aborted
+            ? `Request timed out after 30s: ${method} ${path}`
+            : `Network error: ${method} ${path}`,
+        };
+        throw error;
+      } finally {
+        clearTimeout(timeoutId);
+      }
     }
 
-    return response.json();
+    // TypeScript exhaustiveness — unreachable
+    throw { error: 'Unexpected error', status: 500 } as CensusError;
   }
 
   /**

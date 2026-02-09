@@ -133,7 +133,7 @@ export function useArticles(options?: ArticlesOptions) {
     } finally {
       setIsLoading(false);
     }
-  }, [client, options?.category, options?.search, options?.limit, options?.offset]);
+  }, [client, JSON.stringify(options)]);
 
   useEffect(() => {
     if (isReady) {
