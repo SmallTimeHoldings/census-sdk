@@ -24,7 +24,7 @@ import type {
 /**
  * Default API base URL
  */
-const DEFAULT_BASE_URL = 'https://api.census.ai';
+const DEFAULT_BASE_URL = 'https://census-api-production-97c0.up.railway.app';
 
 /**
  * Census SDK Client

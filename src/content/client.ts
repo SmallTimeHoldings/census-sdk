@@ -8,7 +8,7 @@ import type {
   SitemapEntry,
 } from './types';
 
-const DEFAULT_BASE_URL = 'https://api.census.ai';
+const DEFAULT_BASE_URL = 'https://census-api-production-97c0.up.railway.app';
 
 /**
  * Server-side content client for fetching blog posts and help articles.
