@@ -510,7 +510,7 @@ const createStyles = (t: ThemeColors) => ({
 });
 
 // Create dynamic CSS for hover states
-const createHoverStyles = (t: ThemeColors, isDark: boolean) => `
+const createHoverStyles = (t: ThemeColors, _isDark: boolean) => `
   @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
