@@ -583,16 +583,38 @@ export function HelpCenter({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [systemDark, setSystemDark] = useState(false);
 
-  // Detect system theme
+  // Detect theme from host app (class-based) or system preference
   useEffect(() => {
-    if (themeProp === 'auto') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      setSystemDark(mediaQuery.matches);
+    if (themeProp !== 'auto') return;
 
-      const handler = (e: MediaQueryListEvent) => setSystemDark(e.matches);
-      mediaQuery.addEventListener('change', handler);
-      return () => mediaQuery.removeEventListener('change', handler);
-    }
+    const detectDark = () => {
+      // Check for class-based dark mode (Tailwind / next-themes / data attribute)
+      const html = document.documentElement;
+      if (html.classList.contains('dark') || html.getAttribute('data-theme') === 'dark') {
+        return true;
+      }
+      // Fall back to OS-level preference
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    };
+
+    setSystemDark(detectDark());
+
+    // Listen for OS preference changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const mediaHandler = () => setSystemDark(detectDark());
+    mediaQuery.addEventListener('change', mediaHandler);
+
+    // Observe class/attribute changes on <html> (next-themes, etc.)
+    const observer = new MutationObserver(() => setSystemDark(detectDark()));
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-theme'],
+    });
+
+    return () => {
+      mediaQuery.removeEventListener('change', mediaHandler);
+      observer.disconnect();
+    };
   }, [themeProp]);
 
   // Resolve the actual theme
