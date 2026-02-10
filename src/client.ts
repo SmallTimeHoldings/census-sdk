@@ -45,6 +45,7 @@ const DEFAULT_BASE_URL = 'https://census-api-production-97c0.up.railway.app';
 export class CensusClient {
   private apiKey: string;
   private baseUrl: string;
+  private projectId: string | null;
   private debug: boolean;
   private currentUserId: string | null = null;
 
@@ -61,6 +62,7 @@ export class CensusClient {
 
     this.apiKey = config.apiKey;
     this.baseUrl = config.baseUrl || DEFAULT_BASE_URL;
+    this.projectId = config.projectId || null;
     this.debug = config.debug || false;
 
     this.log('Initialized with base URL:', this.baseUrl);
@@ -166,6 +168,7 @@ export class CensusClient {
         helpful: options.helpful,
         userId: this.currentUserId,
         articleId: options.articleId,
+        projectId: this.projectId,
         pageUrl: typeof window !== 'undefined' ? window.location.href : undefined,
         metadata: options.metadata,
       }
@@ -195,6 +198,7 @@ export class CensusClient {
    */
   async getArticles(options?: ArticlesOptions): Promise<ArticlesResponse> {
     const params = new URLSearchParams();
+    if (this.projectId) params.set('project_id', this.projectId);
     if (options?.category) params.set('category', options.category);
     if (options?.search) params.set('search', options.search);
     if (options?.limit) params.set('limit', String(options.limit));
@@ -253,8 +257,11 @@ export class CensusClient {
    * ```
    */
   async getFeatureGroups(): Promise<FeatureGroupsResponse> {
+    const params = new URLSearchParams();
+    if (this.projectId) params.set('project_id', this.projectId);
+    const queryString = params.toString();
     const response = await this.request<FeatureGroupsResponse>(
-      '/api/sdk/feature-groups',
+      `/api/sdk/feature-groups${queryString ? `?${queryString}` : ''}`,
       'GET'
     );
     this.log('Fetched feature groups:', response.feature_groups.length);
@@ -287,6 +294,7 @@ export class CensusClient {
 
     const params = new URLSearchParams();
     params.set('userId', this.currentUserId);
+    if (this.projectId) params.set('project_id', this.projectId);
     if (options?.status) params.set('status', options.status);
     if (options?.type) params.set('type', options.type);
     if (options?.limit) params.set('limit', String(options.limit));
@@ -387,7 +395,8 @@ export class CensusClient {
    */
   async getGuides(options?: GuidesOptions): Promise<GuidesResponse> {
     const params = new URLSearchParams();
-    if (options?.projectId) params.set('project_id', options.projectId);
+    const pid = options?.projectId || this.projectId;
+    if (pid) params.set('project_id', pid);
     if (options?.url) params.set('url', options.url);
     if (options?.userId) params.set('user_id', options.userId);
 
@@ -458,7 +467,7 @@ export class CensusClient {
         name: options.name,
         slug: options.slug,
         description: options.description,
-        project_id: options.projectId,
+        project_id: options.projectId || this.projectId,
         trigger_type: options.triggerType || 'manual',
         trigger_config: options.triggerConfig || {},
         theme: options.theme || {},

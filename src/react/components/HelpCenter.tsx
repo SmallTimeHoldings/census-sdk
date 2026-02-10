@@ -588,12 +588,20 @@ export function HelpCenter({
     if (themeProp !== 'auto') return;
 
     const detectDark = () => {
-      // Check for class-based dark mode (Tailwind / next-themes / data attribute)
       const html = document.documentElement;
-      if (html.classList.contains('dark') || html.getAttribute('data-theme') === 'dark') {
-        return true;
-      }
-      // Fall back to OS-level preference
+      // Check explicit data-theme attribute
+      const dataTheme = html.getAttribute('data-theme');
+      if (dataTheme === 'dark') return true;
+      if (dataTheme === 'light') return false;
+      // Check class-based dark mode (Tailwind / next-themes)
+      // next-themes adds a style attribute or color-scheme — if it's managing
+      // the html element, trust the class (absence of 'dark' = light)
+      const hasClassBasedTheme = html.classList.contains('dark') ||
+        html.style.colorScheme !== '' ||
+        html.getAttribute('data-color-mode') !== null;
+      if (html.classList.contains('dark')) return true;
+      if (hasClassBasedTheme) return false;
+      // No class-based theme system detected — fall back to OS preference
       return window.matchMedia('(prefers-color-scheme: dark)').matches;
     };
 

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { createCensus, CensusClient } from '../client';
 import type { CensusProviderProps, CensusTheme, UserIdentity } from '../types';
+import { BuilderModeController } from './components/BuilderModeController';
 
 /**
  * Context value for the Census provider
@@ -37,6 +38,7 @@ const CensusContext = createContext<CensusContextValue | null>(null);
 export function CensusProvider({
   apiKey,
   baseUrl,
+  projectId,
   debug,
   user,
   theme = {},
@@ -46,8 +48,8 @@ export function CensusProvider({
   const [isIdentified, setIsIdentified] = useState(false);
 
   const client = useMemo(() => {
-    return createCensus({ apiKey, baseUrl, debug });
-  }, [apiKey, baseUrl, debug]);
+    return createCensus({ apiKey, baseUrl, projectId, debug });
+  }, [apiKey, baseUrl, projectId, debug]);
 
   // Automatically identify user if provided
   useEffect(() => {
@@ -77,7 +79,12 @@ export function CensusProvider({
     [client, theme, isReady, isIdentified]
   );
 
-  return <CensusContext.Provider value={value}>{children}</CensusContext.Provider>;
+  return (
+    <CensusContext.Provider value={value}>
+      {children}
+      <BuilderModeController />
+    </CensusContext.Provider>
+  );
 }
 
 /**

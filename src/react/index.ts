@@ -59,6 +59,7 @@ export { KnowledgeBase } from './components/KnowledgeBase';
 export { Requests } from './components/Requests';
 export { HelpCenter, type HelpCenterTheme } from './components/HelpCenter';
 export { GuideBuilder } from './components/GuideBuilder';
+export { BuilderModeController } from './components/BuilderModeController';
 export {
   GuideRenderer,
   TooltipStep,

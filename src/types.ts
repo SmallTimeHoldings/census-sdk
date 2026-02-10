@@ -14,6 +14,11 @@ export interface CensusConfig {
   baseUrl?: string;
 
   /**
+   * Project ID to scope all requests to
+   */
+  projectId?: string;
+
+  /**
    * Enable debug logging
    * @default false
    */
@@ -984,6 +989,11 @@ export interface CensusProviderProps {
    * Base URL for the API
    */
   baseUrl?: string;
+
+  /**
+   * Project ID to scope all requests to
+   */
+  projectId?: string;
 
   /**
    * Enable debug mode
