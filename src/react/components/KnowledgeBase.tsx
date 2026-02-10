@@ -34,7 +34,7 @@ const defaultStyles = {
     borderRadius: '8px',
     marginBottom: '12px',
     cursor: 'pointer',
-    transition: 'box-shadow 0.2s, border-color 0.2s',
+    transition: 'border-color 0.2s',
     backgroundColor: 'white',
   },
   articleTitle: {

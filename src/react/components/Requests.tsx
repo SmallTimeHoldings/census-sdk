@@ -23,11 +23,10 @@ const defaultStyles = {
     padding: '16px',
     backgroundColor: '#ffffff',
     cursor: 'pointer',
-    transition: 'border-color 0.15s, box-shadow 0.15s',
+    transition: 'border-color 0.15s',
   },
   cardHover: {
     borderColor: '#d1d5db',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
   },
   header: {
     display: 'flex',

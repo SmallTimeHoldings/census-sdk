@@ -518,7 +518,6 @@ const createHoverStyles = (t: ThemeColors, isDark: boolean) => `
 
   .census-hc .census-article-card:hover {
     border-color: ${t.borderHover} !important;
-    box-shadow: ${isDark ? '0 4px 12px rgba(0, 0, 0, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.06)'};
   }
 
   .census-hc .census-article-card:hover .census-article-icon {

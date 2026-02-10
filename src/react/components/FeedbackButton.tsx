@@ -13,8 +13,7 @@ const defaultStyles = {
     fontFamily: 'system-ui, -apple-system, sans-serif',
     fontSize: '14px',
     fontWeight: '500' as const,
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-    transition: 'transform 0.2s, box-shadow 0.2s',
+    transition: 'transform 0.2s',
     zIndex: 9999,
   },
   modal: {
